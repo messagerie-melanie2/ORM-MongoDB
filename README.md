@@ -2,10 +2,10 @@
 Object-Relationnal Mapping for MongoDB, NoSQL, SQL and LDAP
 Developed by the PNE Annuaire et Messagerie/MEDDE
 
-# ATTENTION
+## ATTENTION
 It is a pre-alpha release, used for the development. DOT NOT use it for production.
 
-# Licence
+## Licence
 ORM-MongoDB Copyright (C) 2015 PNE Annuaire et Messagerie/MEDDE used licence GPL v3
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
