@@ -102,6 +102,8 @@ abstract class DriverMapping {
    */
   public function __construct($mapping) {
     $this->_mapping = $mapping;
+    // Inverse le mapping pour faciliter le traitement
+    $this->_reverseMapping();
     // Initialisation
     $this->_hasChanged = array();
     $this->_fields = array();
@@ -111,6 +113,25 @@ abstract class DriverMapping {
 
     // Appel l'initialisation
     $this->init();
+  }
+
+  /**
+   * Inverse le mapping de la configuration
+   * Permet de retrouver plus facilement les champs
+   */
+  private function _reverseMapping() {
+    if (!isset($this->_mapping['reverse'])) {
+      $this->_mapping['reverse'] = array();
+      foreach ($this->_mapping['fields'] as $key => $field) {
+        if (is_array($field)) {
+          $name = $field['name'];
+        }
+        else {
+          $name = $field;
+        }
+        $this->_mapping['reverse'][$name] = $key;
+      }
+    }
   }
 
   /**

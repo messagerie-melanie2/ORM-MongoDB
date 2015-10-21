@@ -26,9 +26,9 @@ $config['mapping'] = array(
         'ObjectType' => 'Roundcube\\Event',
         'Driver' => 'default',
         'CollectionName' => 'event',
-        'innerjoin' => array(),
-        'leftjoin' => array(),
-        'rightjoin' => array(),
+        'innerJoin' => array(),
+        'leftJoin' => array(),
+        'rightJoin' => array(),
         'fields' => array(
                 'uid' => array('name' => 'vcalendar.vevent.uid', 'type' => 'string', 'id' => true),
                 'calendar' => array('name' => 'calendar', 'type' => 'string', 'id' => true),
