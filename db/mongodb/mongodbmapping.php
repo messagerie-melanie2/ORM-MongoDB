@@ -30,6 +30,12 @@ class MongoDBMapping extends \ORM\DB\DriverMapping {
    * @var string
    */
   protected $_collectionName;
+
+  /**
+   * Liste des champs à lister pour une requête de type find/findOne
+   * @var array
+   */
+  protected $_listFields;
   /**
    * Getter pour le nom de la collection
    * @return string
@@ -78,14 +84,30 @@ class MongoDBMapping extends \ORM\DB\DriverMapping {
 
   /**
    * Défini les champs mappés suite à une lecture dans la base de données
+   * @recursive
    * @param array $mappingFields
+   * @param string clé parente
    */
-  public function setMappingFields($mappingFields) {
-    foreach ($mappingFields as $mappingField) {
-
+  public function setMappingFields($mappingFields, $mKey = null) {
+    foreach ($mappingFields as $key => $mappingField) {
+      if (isset($mKey)) {
+        $key = "$mKey.$key";
+      }
+      if (isset($this->_mapping['reverse'][$key])) {
+        $this->_fields[$key] = $mappingField;
+      }
+      else if (is_array($mappingField)) {
+        $this->setMappingFields($mappingField, $key);
+      }
     }
   }
 
+  /**
+   * Retourne la liste des champs de recherche avec les valeurs
+   * TODO: Associer plus d'informations via les operations etc
+   * Voir le getList de l'ORM
+   * @return array
+   */
   public function getSearchFields() {
     $searchFields = array();
     foreach ($this->_hasChanged as $key => $haschanged) {

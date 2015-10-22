@@ -73,6 +73,47 @@ abstract class DriverMapping {
   protected $_isList;
 
   /**
+   * Liste des champs à lister pour une requête de type search
+   * @var array
+   */
+  protected $_listFields;
+  /**
+   * Liste des operateurs utilisés dans le cas d'une requête de type search
+   * @var array
+   */
+  protected $_operators;
+  /**
+   * Filtre demandé pour une requête de type search
+   * @var string
+   */
+  protected $_filter;
+  /**
+   * Nom du ou des champs utilisé pour le tri pour une requête de type search
+   * @var string|array
+   */
+  protected $_orderBy;
+  /**
+   * Le tri doit il être croissant pour une requête de type search
+   * @var boolean
+   */
+  protected $_asc;
+  /**
+   * Nombre d'objets retournés (utile pour la pagination) pour une requête de type search
+   * @var integer
+   */
+  protected $_limit;
+  /**
+   * Offset de début pour les résultats (utile pour la pagination) pour une requête de type search
+   * @var integer
+   */
+  protected $_offset;
+  /**
+   * Liste des champs non sensibles à la casse pour une requête de type search
+   * @var array
+   */
+  protected $_unsensitiveFields;
+
+  /**
    * Récupèration de l'instance liée à une collection et un mapping
    * @param string $mapping Configuration de mapping pour l'instance
    * @return DriverMapping
@@ -145,6 +186,63 @@ abstract class DriverMapping {
     else {
       return $this->_isList;
     }
+  }
+
+  /**
+   * Liste des champs à lister pour une requête de type search
+   * @return array
+   */
+  public function getListFields() {
+    return $this->_listFields;
+  }
+  /**
+   * Liste des operateurs utilisés dans le cas d'une requête de type search
+   * @return string
+   */
+  public function getOperators() {
+    return $this->_operators;
+  }
+  /**
+   * Filtre demandé pour une requête de type search
+   * @return string
+   */
+  public function getFilter() {
+    return $this->_filter;
+  }
+  /**
+   * Nom du ou des champs utilisé pour le tri pour une requête de type search
+   * @return string|array
+   */
+  public function getOrderBy() {
+    return $this->_orderBy;
+  }
+  /**
+   * Le tri doit il être croissant pour une requête de type search
+   * @return boolean
+   */
+  public function getAsc() {
+    return $this->_asc;
+  }
+  /**
+   * Nombre d'objets retournés (utile pour la pagination) pour une requête de type search
+   * @return number
+   */
+  public function getLimit() {
+    return $this->_limit;
+  }
+  /**
+   * Offset de début pour les résultats (utile pour la pagination) pour une requête de type search
+   * @return number
+   */
+  public function getOffset() {
+    return $this->_offset;
+  }
+  /**
+   * Liste des champs non sensibles à la casse pour une requête de type search
+   * @return array
+   */
+  public function getUnsensitiveFields() {
+    return $this->_unsensitiveFields;
   }
 
   /**
