@@ -90,7 +90,13 @@ class MongoDB extends \ORM\DB\Driver {
   public function create(MongoDBMapping $args) {
     try {
       $collection = $this->_getCollection($args->getCollectionName());
-      $ret = $collection->insert($args->getMappingFields());
+      $ret = $collection->insert($args->getMappingFields(), $args->getOptions());
+    }
+    catch (\MongoCursorException  $mongoCursorEx) {
+
+    }
+    catch (\MongoCursorTimeoutException $mongoCursorTimeoutEx) {
+
     }
     catch (\MongoException $mongoEx) {
 
@@ -108,11 +114,17 @@ class MongoDB extends \ORM\DB\Driver {
     try {
       $collection = $this->_getCollection($args->getCollectionName());
       if ($args->isList()) {
-        $cursor = $collection->find($args->getSearchFields());
+        $cursor = $collection->find($args->getSearchFields(), $args->getListFields());
       }
       else {
-        $result = $collection->findOne($args->getSearchFields());
+        $result = $collection->findOne($args->getSearchFields(), $args->getListFields());
       }
+
+    }
+    catch (\MongoCursorException  $mongoCursorEx) {
+
+    }
+    catch (\MongoCursorTimeoutException $mongoCursorTimeoutEx) {
 
     }
     catch (\MongoException $mongoEx) {
@@ -130,6 +142,13 @@ class MongoDB extends \ORM\DB\Driver {
   public function update(MongoDBMapping $args) {
     try {
       $collection = $this->_getCollection($args->getCollectionName());
+      $result = $collection->update($args->getSearchFields(), $args->getUpdateFields(), $args->getOptions());
+    }
+    catch (\MongoCursorException  $mongoCursorEx) {
+
+    }
+    catch (\MongoCursorTimeoutException $mongoCursorTimeoutEx) {
+
     }
     catch (\MongoException $mongoEx) {
 
@@ -146,6 +165,13 @@ class MongoDB extends \ORM\DB\Driver {
   public function delete(MongoDBMapping $args) {
     try {
       $collection = $this->_getCollection($args->getCollectionName());
+      $result = $collection->remove($args->getSearchFields(), $args->getOptions());
+    }
+    catch (\MongoCursorException  $mongoCursorEx) {
+
+    }
+    catch (\MongoCursorTimeoutException $mongoCursorTimeoutEx) {
+
     }
     catch (\MongoException $mongoEx) {
 

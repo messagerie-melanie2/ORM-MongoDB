@@ -62,6 +62,12 @@ class MongoDBMapping extends \ORM\DB\DriverMapping {
     return $mappingFields;
   }
 
+  /**
+   * Méthode de mapping pour un champ
+   * @param string $key
+   * @param multiple $value
+   * @param array $array
+   */
   private function _mapField($key, $value, &$array) {
     if (strpos($key, '.') !== false) {
       $keys = explode('.', $key);
@@ -116,6 +122,14 @@ class MongoDBMapping extends \ORM\DB\DriverMapping {
       }
     }
     return $searchFields;
+  }
+
+  public function getUpdateFields() {
+
+  }
+
+  public function getOptions() {
+
   }
 
   /**
