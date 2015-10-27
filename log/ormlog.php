@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace LibMelanie\Log;
+namespace ORM\Log;
 
 /**
  * Classe de log Melanie2
@@ -33,7 +33,7 @@ namespace LibMelanie\Log;
  * @subpackage LOG
  *
  */
-class M2Log {
+class ORMLog {
 	/**
 	 * Static log class
 	 * @var Log $log
@@ -83,7 +83,7 @@ class M2Log {
 	/**
 	 * Fonction de log
 	 *
-	 * @param M2Log::LEVEL_* $level
+	 * @param ORMLog::LEVEL_* $level
 	 * @param string $message message to show
 	 */
 	public static function Log($level, $message) {

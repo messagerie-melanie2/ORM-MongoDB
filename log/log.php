@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace LibMelanie\Log;
+namespace ORM\Log;
 
 /**
  * Classe de log
@@ -86,24 +86,24 @@ class Log {
 	/**
 	 * Appel les logs associé au level
 	 *
-	 * @param M2Log::LEVEL_* $level
+	 * @param ORMLog::LEVEL_* $level
 	 * @param string $message message to show
 	 */
 	public function log($level, $message) {
 		switch ($level) {
-			case M2Log::LEVEL_ERROR:
+			case ORMLog::LEVEL_ERROR:
 				if (isset($this->errorlog)) {
 					$errorlog = $this->errorlog;
 					$errorlog($message);
 				}
 				break;
-			case M2Log::LEVEL_DEBUG:
+			case ORMLog::LEVEL_DEBUG:
 				if (isset($this->debuglog)) {
 					$debuglog = $this->debuglog;
 					$debuglog($message);
 				}
 				break;
-			case M2Log::LEVEL_INFO:
+			case ORMLog::LEVEL_INFO:
 				if (isset($this->infolog)) {
 					$info = $this->infolog;
 					$info($message);
