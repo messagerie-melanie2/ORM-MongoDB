@@ -79,7 +79,7 @@ class MongoDBMapping extends \ORM\DB\DriverMapping {
           if (!isset($array[$kv])) {
             $array[$kv] = array();
           }
-          $array = $array[$kv];
+          $array = &$array[$kv];
         }
       }
     }
@@ -155,7 +155,7 @@ class MongoDBMapping extends \ORM\DB\DriverMapping {
    * @return array
    */
   public function getOptions() {
-    return null;
+    return array();
   }
 
   /**
