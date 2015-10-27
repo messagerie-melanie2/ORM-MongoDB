@@ -41,17 +41,17 @@ function microtime_float() {
 set_include_path(__DIR__.'/..');
 include_once 'includes/includes.php';
 
-use LibMelanie\Api\Melanie2\User;
-use LibMelanie\Api\Melanie2\Task;
-use LibMelanie\Api\Melanie2\Taskslist;
-use LibMelanie\Config\MappingMelanie;
-use LibMelanie\Log\M2Log;
+use ORM\Api\Melanie2\User;
+use ORM\Api\Melanie2\Task;
+use ORM\Api\Melanie2\Taskslist;
+use ORM\Config\MappingMelanie;
+use ORM\Log\ORMLog;
 
 $log = function ($message) {
 	echo "[LibM2] $message \r\n";
 };
-M2Log::InitDebugLog($log);
-M2Log::InitErrorLog($log);
+ORMLog::InitDebugLog($log);
+ORMLog::InitErrorLog($log);
 
 echo "########################\r\n";
 

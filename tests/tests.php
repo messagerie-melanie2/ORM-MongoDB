@@ -27,11 +27,11 @@
  */
 include_once 'includes.php';
 
-use LibMelanie\Objects\UserMelanie;
-use LibMelanie\Objects\CalendarMelanie;
-use LibMelanie\Objects\EventMelanie;
-use LibMelanie\Objects\HistoryMelanie;
-use LibMelanie\Config\ConfigMelanie;
+use ORM\Objects\UserMelanie;
+use ORM\Objects\CalendarMelanie;
+use ORM\Objects\EventMelanie;
+use ORM\Objects\HistoryMelanie;
+use ORM\Config\ConfigMelanie;
 
 /**
  * Prompt pour password
