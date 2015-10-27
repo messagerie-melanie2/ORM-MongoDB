@@ -29,16 +29,16 @@
  * Méthode de chargement automatique des classes
  * @param string $pClassName
  */
-function libm2_autoload($pClassName) {
-    // Ne charger que les classe de la librairie LibMelanie
-    if (strpos($pClassName, 'LibMelanie') === false)
+function orm_autoload($pClassName) {
+    // Ne charger que les classe de la librairie ORM
+    if (strpos($pClassName, 'ORM') === false)
         return;
     // Définition du nom du fichier et du chemin
     $dir_class = $pClassName . '.php';
     // Remplace les \ du namespace par /
     $dir_class = str_replace('\\', '/', $dir_class);
-    // Enleve le LibMelanie\ du namespace
-    $dir_class = str_replace('LibMelanie/', '', $dir_class);
+    // Enleve le ORM\ du namespace
+    $dir_class = str_replace('ORM/', '', $dir_class);
     // Positionne le chemin en minuscule
     $dir_class = strtolower($dir_class);
     // Charge la classe
@@ -46,4 +46,4 @@ function libm2_autoload($pClassName) {
 }
 
 // Appel l'autoload register qui va utiliser notre méthode autoload
-spl_autoload_register("libm2_autoload", true, true);
+spl_autoload_register("orm_autoload", true, true);

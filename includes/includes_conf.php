@@ -22,6 +22,8 @@
 
 /* Chargement de l'environnement */
 include_once(__DIR__ . '/../config/env.php');
+/* Chargement de la configuration par défaut */
+include_once(__DIR__ . '/../config/default.inc.php');
 
 // Chargement de la configuration de l'application
 if (CONFIGURATION_TYPE_LIBM2 == TYPE_EXTERNAL) {
@@ -39,5 +41,3 @@ else if (CONFIGURATION_TYPE_LIBM2 == TYPE_INTERNAL) {
     /* Chargement de la configuration de l'application en fonction de l'environnement */
     include_once(__DIR__ . '/../config/'.ENVIRONNEMENT_LIBM2.'/includes.php');
 }
-/* Chargement de la configuration de mapping */
-include_once(__DIR__ . '/../config/mapping.php');
