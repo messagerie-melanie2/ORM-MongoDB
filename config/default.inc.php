@@ -28,10 +28,3 @@ $config['ldap'] = array();
 $config['mapping'] = array();
 $config['plugins'] = array();
 
-
-/****** DATABASE CNX ********/
-
-$config['db']['dsn'] = 'mongodb://example.com:65432';
-$config['db']['username'] = '';
-$config['db']['password'] = '';
-

@@ -65,7 +65,7 @@ define('ENVIRONNEMENT_LIBM2', '');
 /**
  * Chemin vers la configuration externe
  */
-define('CONFIGURATION_PATH_LIBM2', '/etc/LibM2');
+define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida/');
 
 /**
  * MODE_SIMPLE ou MODE_MULTIPLE pour la configuration TYPE_EXTERNAL
@@ -74,4 +74,4 @@ define('CONFIGURATION_PATH_LIBM2', '/etc/LibM2');
  * Dans ce cas la configuration va être lu dans le répertoire correspondant au CONFIGURATION_APP_LIBM2
  * qui doit être configuré dans l'application
  */
-define('CONFIGURATION_MODE_LIBM2', MODE_MULTIPLE);
+define('CONFIGURATION_MODE_LIBM2', MODE_SIMPLE);

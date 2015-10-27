@@ -22,8 +22,9 @@
 
 /****** DATABASE CNX ********/
 
+$config['db']['default'] = array();
 $config['db']['default']['driver'] = 'MongoDB';
-$config['db']['default']['dsn'] = 'mongodb://example.com:65432';
+$config['db']['default']['dsn'] = 'mongodb://localhost';
 $config['db']['default']['database'] = 'messagerie';
 $config['db']['default']['username'] = '';
 $config['db']['default']['password'] = '';

@@ -23,23 +23,38 @@
 /****** Mapping ********/
 $config['mapping'] = array(
      array(
-        'ObjectType' => 'Roundcube\\Event',
+        'ObjectType' => 'PHP\\Event',
         'Driver' => 'default',
         'CollectionName' => 'event',
         'innerJoin' => array(),
         'leftJoin' => array(),
         'rightJoin' => array(),
+        'primaryKeys' => array('vcalendar.vevent.uid' => true, 'calendar' => true),
         'fields' => array(
-                'uid' => array('name' => 'vcalendar.vevent.uid', 'type' => 'string', 'id' => true),
-                'calendar' => array('name' => 'calendar', 'type' => 'string', 'id' => true),
+                'uid' => array('name' => 'vcalendar.vevent.uid', 'type' => 'string'),
+                'calendar' => array('name' => 'calendar', 'type' => 'string'),
                 'title' => array('name' => 'vcalendar.vevent.summary', 'type' => 'string'),
                 'description' => array('name' => 'vcalendar.vevent.description', 'type' => 'string'),
                 'start' => array('name' => 'vcalendar.vevent.dtstart', 'type' => 'datetime'),
                 'end' => array('name' => 'vcalendar.vevent.dtend', 'type' => 'datetime'),
+                'start_timezone' => array('name' => 'vcalendar.vevent.dtstart_timezone', 'type' => 'timezone'),
+                'end_timezone' => array('name' => 'vcalendar.vevent.dtend_timezone', 'type' => 'timezone'),
         ),
         'methods' => array(
                 'load' => array(
                         'name' => 'read',
+                        'return' => 'boolean',
+                        'results' => 'combined',
+                        'operator' => 'and',
+                ),
+                'insert' => array(
+                        'name' => 'create',
+                        'return' => 'boolean',
+                        'results' => 'combined',
+                        'operator' => 'and',
+                ),
+                'update' => array(
+                        'name' => 'update',
                         'return' => 'boolean',
                         'results' => 'combined',
                         'operator' => 'and',
