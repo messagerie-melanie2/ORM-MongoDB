@@ -41,6 +41,11 @@ abstract class ObjectMapping {
    * @var \ORM\DB\DriverMapping[]
    */
   private $_driverMappingInstance;
+  /**
+   * Défini si l'objet courant existe ou pas
+   * @var boolean
+   */
+  private $_isExists;
 
   /**
    * Constructeur par défaut de l'object mapping
@@ -247,8 +252,23 @@ abstract class ObjectMapping {
         if (isset($methods_mapping['name'])) {
           $name = $methods_mapping['name'];
         }
+        // Sagit-il d'une liste ?
+        if (isset($methods_mapping['return'])
+            && $methods_mapping['return'] == 'list') {
+          $this->_driverMappingInstance->isList(true);
+        }
+        else {
+          $this->_driverMappingInstance->isList(false);
+        }
+        // Mapping des paramètres
+        if (isset($methods_mapping['arguments'])) {
+          foreach ($methods_mapping['arguments'] as $key => $argument) {
+            // Map d'argument avec le driver Mapping, via l'identifiant du tableau
+            $this->_driverMappingInstance->$argument($arguments[$key]);
+          }
+        }
         // Appel de la méthode
-        $result = $this->_driverMappingInstance->$name;
+        $result = $this->_driverMappingInstance->$name();
         // Combinaison des résultats
         if (!isset($methods_mapping['results'])
             || !isset($methods_mapping['results']) != 'combined') {
