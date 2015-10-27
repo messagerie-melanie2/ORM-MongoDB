@@ -74,7 +74,7 @@ abstract class Driver {
         return false;
       }
       // Instancie le driver
-      $driver = $config['driver'] . '\\' . $config['driver'];
+      $driver = "\\ORM\\DB\\".$config['driver']."\\".$config['driver'];
       self::$instances[$server] = new $driver($config);
     }
     // Return l'instance du driver
@@ -93,6 +93,8 @@ abstract class Driver {
 
     unset($config['dsn']);unset($config['username']);unset($config['password']);
     $this->config = $config;
+
+    $this->connect();
   }
 
   /**

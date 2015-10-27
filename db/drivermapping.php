@@ -25,13 +25,6 @@ namespace ORM\DB;
  * Gestion du mapping par driver
  * Tous les drivers mapping de l'ORM doivent l'implémenter
  *
- * @property string $instance_id Identifiant de l'instance courante
- * @property string $collection_name Nom de la collection courante
- * @property array $fields Liste des champs
- * @property array $search_fields Liste des champs recherchés
- * @property array $filter_fields Liste des champs à filtre avec leurs valeurs
- * @property array $update_fields Liste des champs à mettre à jour avec leur valeurs
- * @property array $create_fields Liste des champs à créer avec leurs valeurs
  */
 abstract class DriverMapping {
   /**
@@ -125,7 +118,10 @@ abstract class DriverMapping {
     }
     // Instancie l'instance
     if (!isset(self::$instances[$instance_id])) {
-      self::$instances[$instance_id] = new self($mapping);
+      $driver = $mapping['Driver'];
+      $driverType = \ORM\Config\Config::get("db.$driver.driver");
+      $class = "\\ORM\\DB\\".$driverType."\\".$driverType."Mapping";
+      self::$instances[$instance_id] = new $class($mapping, $instance_id);
     }
     // Retourne l'instance du driver mapping
     return self::$instances[$instance_id];
@@ -163,8 +159,9 @@ abstract class DriverMapping {
    * Constructeur par défaut du driver mapping
    * Doit être appelé par tous les drivers mapping
    */
-  public function __construct($mapping) {
+  public function __construct($mapping, $instance_id) {
     $this->_mapping = $mapping;
+    $this->_instance_id = $instance_id;
     // Inverse le mapping pour faciliter le traitement
     $this->_reverseMapping();
     // Initialisation
@@ -213,6 +210,20 @@ abstract class DriverMapping {
     $this->_limit = null;
     $this->_offset = null;
     $this->_unsensitiveFields = array();
+  }
+
+  /**
+   * Getter/setter pour l'instance id
+   * @param string $instanceId
+   * @return string
+   */
+  public function instanceId($instanceId = null) {
+    if (isset($instanceId)) {
+      $this->_instance_id = $instanceId;
+    }
+    else {
+      return $this->_instance_id;
+    }
   }
 
   /**
@@ -414,7 +425,7 @@ abstract class DriverMapping {
    */
   public function __call($name, $arguments) {
     // Appel la méthode
-    $result = $this->_driver->$name($arguments);
+    $result = $this->_driver->$name($this);
     // Réinitialise les arguments
     $this->_init_arguments();
     return $result;
