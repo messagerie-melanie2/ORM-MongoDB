@@ -112,24 +112,50 @@ class MongoDBMapping extends \ORM\DB\DriverMapping {
    * Retourne la liste des champs de recherche avec les valeurs
    * TODO: Associer plus d'informations via les operations etc
    * Voir le getList de l'ORM
+   * @param boolean $usePrimaryKeys [Optionnel] Utiliser les clés primaires pour la recherche
+   * @param array $fieldsForSearch [Optionnel] Liste des champs à utiliser pour la recherche
    * @return array
    */
-  public function getSearchFields() {
+  public function getSearchFields($usePrimaryKeys = true, $fieldsForSearch = null) {
     $searchFields = array();
-    foreach ($this->_hasChanged as $key => $haschanged) {
-      if ($haschanged) {
+    if (!isset($fieldsForSearch)) {
+      if (isset($this->_mapping['primaryKeys']) && $usePrimaryKeys) {
+        $fieldsForSearch = $this->_mapping['primaryKeys'];
+      }
+      else {
+        $fieldsForSearch = $this->_hasChanged;
+      }
+    }
+    // Parcours les champs pour retourner la recherche
+    foreach ($fieldsForSearch as $key => $use) {
+      if ($use) {
         $searchFields[$key] = $this->_fields[$key];
       }
     }
     return $searchFields;
   }
 
+  /**
+   * Liste les champs à mettre à jour
+   * @return array
+   */
   public function getUpdateFields() {
-
+    $updateFields = array();
+    // Parcours les champs pour retourner la recherche
+    foreach ($this->_hasChanged as $key => $use) {
+      if ($haschanged) {
+        $updateFields[$key] = $this->_fields[$key];
+      }
+    }
+    return array('$set' => $updateFields);
   }
 
+  /**
+   * Récupération des options pour la requête
+   * @return array
+   */
   public function getOptions() {
-
+    return null;
   }
 
   /**
