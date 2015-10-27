@@ -53,7 +53,7 @@ abstract class ObjectMapping {
    */
   public function __construct() {
     // Récupération du type de l'objet
-    $this->_objectType = str_replace('ORM\\Mapping\\', '', get_class());
+    $this->_objectType = str_replace('ORM\\API\\', '', get_called_class());
     // Récupération de la configuration du mapping
     $mapping = \ORM\Config\Config::get('mapping');
 
@@ -66,8 +66,8 @@ abstract class ObjectMapping {
       if ($map['ObjectType'] == $this->_objectType) {
         // Initialisation de l'instance
         $instance = \ORM\DB\DriverMapping::get_instance($map);
-        $this->_driverMappingInstance[$instance->instance_id] = $instance;
-        $this->_mapping[$instance->instance_id] = $map;
+        $this->_driverMappingInstance[$instance->instanceId()] = $instance;
+        $this->_mapping[$instance->instanceId()] = $map;
       }
     }
 
@@ -134,6 +134,18 @@ abstract class ObjectMapping {
               catch (Exception $ex) {
                 // Une erreur s'est produite, on met une valeur par défaut pour le pas bloquer la lecture des données
                 $value = "1970-01-01 00:00:00";
+              }
+              break;
+            case 'timezone':
+              try {
+                // Conversion du timezone
+                if ($value instanceof \DateTimeZone) {
+                  $value = $value->getName();
+                }
+              }
+              catch (Exception $ex) {
+                // Une exception se produit on met en GMT par défaut
+                $value = 'GMT';
               }
               break;
             case 'timestamp':
@@ -255,20 +267,20 @@ abstract class ObjectMapping {
         // Sagit-il d'une liste ?
         if (isset($methods_mapping['return'])
             && $methods_mapping['return'] == 'list') {
-          $this->_driverMappingInstance->isList(true);
+          $this->_driverMappingInstance[$instance_id]->isList(true);
         }
         else {
-          $this->_driverMappingInstance->isList(false);
+          $this->_driverMappingInstance[$instance_id]->isList(false);
         }
         // Mapping des paramètres
         if (isset($methods_mapping['arguments'])) {
           foreach ($methods_mapping['arguments'] as $key => $argument) {
             // Map d'argument avec le driver Mapping, via l'identifiant du tableau
-            $this->_driverMappingInstance->$argument($arguments[$key]);
+            $this->_driverMappingInstance[$instance_id]->$argument($arguments[$key]);
           }
         }
         // Appel de la méthode
-        $result = $this->_driverMappingInstance->$name();
+        $result = $this->_driverMappingInstance[$instance_id]->$name();
         // Combinaison des résultats
         if (!isset($methods_mapping['results'])
             || !isset($methods_mapping['results']) != 'combined') {
