@@ -19,9 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace LibMelanie\Exceptions;
-
-use LibMelanie\Log\M2Log;
+namespace ORM\Exceptions;
 
 /**
  * Exception sur la base de données pour la librairie Melanie2
@@ -57,7 +55,7 @@ class Melanie2DatabaseException extends \Exception {
 		if (!isset($code))
 			$code = $this->errorCode;
 
-		M2Log::Log(M2Log::LEVEL_ERROR, "LibMelanie\Exceptions\Melanie2DatabaseException->__construct($code, $message)");
+		\ORM\Log\ORMLog::Log(\ORM\Log\ORMLog::LEVEL_ERROR, "ORM\Exceptions\Melanie2DatabaseException->__construct($code, $message)");
 		parent::__construct($message, (int)$code);
 	}
 }
