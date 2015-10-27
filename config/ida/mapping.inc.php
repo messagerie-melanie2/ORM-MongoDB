@@ -38,10 +38,37 @@ $config['mapping'] = array(
                 'end' => array('name' => 'vcalendar.vevent.dtend', 'type' => 'datetime'),
         ),
         'methods' => array(
-                'load' => array('name' => 'read', 'return' => 'boolean', 'results' => 'combined', 'operator' => 'and'),
-                'save' => array('name' => array('insert', 'update'), 'return' => 'boolean', 'results' => 'combined'),
-                'delete' => array('name' => 'delete', 'return' => 'boolean', 'results' => 'combined'),
-                'getList' => array('name' => 'read', 'return' => 'list', 'results' => 'combined'),
+                'load' => array(
+                        'name' => 'read',
+                        'return' => 'boolean',
+                        'results' => 'combined',
+                        'operator' => 'and',
+                ),
+                'save' => array(
+                        'name' => array('insert', 'update'),
+                        'return' => 'boolean',
+                        'results' => 'combined'
+                ),
+                'delete' => array(
+                        'name' => 'delete',
+                        'return' => 'boolean',
+                        'results' => 'combined'
+                ),
+                'getList' => array(
+                        'name' => 'read',
+                        'return' => 'list',
+                        'results' => 'combined',
+                        'arguments' => array(
+                                'listFields',
+                                'filter',
+                                'operators',
+                                'orderBy',
+                                'asc',
+                                'limit',
+                                'offset',
+                                'unsensitiveFields',
+                        ),
+                ),
         ),
     ),
 );
