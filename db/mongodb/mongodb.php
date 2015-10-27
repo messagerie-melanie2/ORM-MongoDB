@@ -88,6 +88,7 @@ class MongoDB extends \ORM\DB\Driver {
    * @param MongoDBMapping $args
    */
   public function create(MongoDBMapping $args) {
+    $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
       $ret = $collection->insert($args->getMappingFields(), $args->getOptions());
@@ -104,6 +105,7 @@ class MongoDB extends \ORM\DB\Driver {
     catch (\Exception $ex) {
 
     }
+    return $ret;
   }
 
   /**
@@ -111,15 +113,60 @@ class MongoDB extends \ORM\DB\Driver {
    * @param MongoDBMapping $args
    */
   public function read(MongoDBMapping $args) {
+    $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
       if ($args->isList()) {
         $cursor = $collection->find($args->getSearchFields(), $args->getListFields());
+        // Récupération des paramètres du curseur
+        $limit = $args->limit();
+        if (isset($limit)
+            && is_numeric($limit)) {
+          // Limit sur le curseur mongo
+          $cursor->limit($limit);
+        }
+        $offset = $args->offset();
+        if (isset($offset)
+            && is_numeric($offset)) {
+          // skip sur le curseur mongo
+          $cursor->skip($offset);
+        }
+        $orderBy = $args->orderBy();
+        $asc = $args->asc();
+        if (isset($orderBy)) {
+          $sort = array();
+          if (is_array($orderBy)) {
+            foreach ($orderBy as $field) {
+              $sort[$field] = $asc ? 1 : -1;
+            }
+          }
+          else {
+            $sort[$orderBy] = $asc ? 1 : -1;
+          }
+          // Sort sur le curseur mongo
+          $cursor->sort($sort);
+        }
+        $mongoMaps = array();
+        // Traitement des résultats
+        while ($cursor->hasNext()) {
+          $data = $cursor->next();
+          $mongoMap = new MongoDBMapping($args->mapping());
+          $mongoMap->setMappingFields($data);
+          $mongoMaps[] = $mongoMap;
+        }
+        $ret = $mongoMaps;
       }
       else {
         $result = $collection->findOne($args->getSearchFields(), $args->getListFields());
+        // Traitement du résultat
+        if (isset($result)) {
+          $args->setMappingFields($result);
+          $ret = true;
+        }
+        else {
+          $ret = false;
+        }
       }
-
     }
     catch (\MongoCursorException  $mongoCursorEx) {
 
@@ -133,6 +180,7 @@ class MongoDB extends \ORM\DB\Driver {
     catch (\Exception $ex) {
 
     }
+    return $ret;
   }
 
   /**
@@ -140,9 +188,10 @@ class MongoDB extends \ORM\DB\Driver {
    * @param MongoDBMapping $args
    */
   public function update(MongoDBMapping $args) {
+    $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
-      $result = $collection->update($args->getSearchFields(), $args->getUpdateFields(), $args->getOptions());
+      $ret = $collection->update($args->getSearchFields(true), $args->getUpdateFields(), $args->getOptions());
     }
     catch (\MongoCursorException  $mongoCursorEx) {
 
@@ -156,6 +205,7 @@ class MongoDB extends \ORM\DB\Driver {
     catch (\Exception $ex) {
 
     }
+    return $ret;
   }
 
   /**
@@ -165,7 +215,7 @@ class MongoDB extends \ORM\DB\Driver {
   public function delete(MongoDBMapping $args) {
     try {
       $collection = $this->_getCollection($args->getCollectionName());
-      $result = $collection->remove($args->getSearchFields(), $args->getOptions());
+      $result = $collection->remove($args->getSearchFields(true), $args->getOptions());
     }
     catch (\MongoCursorException  $mongoCursorEx) {
 
