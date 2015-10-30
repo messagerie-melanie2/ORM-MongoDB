@@ -45,4 +45,90 @@ class Tools {
     // search forward starting from end minus needle length characters
     return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== FALSE);
   }
+
+  /**
+   * Conversion de la variable en fonction du type de mapping
+   * @param mixed $value Valeur à convertir
+   * @param string $type Type pour la conversion
+   */
+  public static function convert(&$value, $type) {
+    switch ($type) {
+      case 'integer':
+        // Conversion en entier
+        $value = intval($value);
+        break;
+      case 'float':
+        // Conversion en flotant
+        $value = floatval($value);
+        break;
+      case 'double':
+        // Conversion en double flotant
+        $value = doubleval($value);
+        break;
+      case 'datetime':
+        try {
+          // Conversion en date/time
+          if (!$value instanceof \DateTime) {
+            if (is_array($value)) {
+              if (isset($value['date'])) {
+                if (isset($value['timezone'])) {
+                  $value = new \DateTime($value['date'], new \DateTimeZone($value['timezone']));
+                }
+                else {
+                  $value = new \DateTime($value['date']);
+                }
+              }
+            }
+            else {
+              $value = new \DateTime($value);
+            }
+          }
+        }
+        catch (Exception $ex) {
+          // Une erreur s'est produite, on met une valeur par défaut pour le pas bloquer la lecture des données
+          $value = new \DateTime("1970-01-01 00:00:00");
+        }
+        break;
+      case 'timezone':
+        try {
+          // Conversion du timezone
+          if (!$value instanceof \DateTimeZone) {
+            if (is_array($value)) {
+              if (isset($value['timezone'])) {
+                $value = new \DateTimeZone($value['timezone']);
+              }
+            }
+            else {
+              $value = new \DateTimeZone($value);
+            }
+          }
+        }
+        catch (Exception $ex) {
+          // Une exception se produit on met en GMT par défaut
+          $value = new \DateTimeZone('GMT');
+        }
+        break;
+      case 'timestamp':
+        // Conversion du timestamp
+        if ($value instanceof \DateTime) {
+          $value = $value->getTimestamp();
+        } elseif (!is_int($value)) {
+          $value = strtotime($value);
+        }
+        break;
+      case 'array':
+        // Conversion en tableau
+        if (!is_array($value)) {
+          $value = array($value);
+        }
+        break;
+      case 'string':
+      default:
+        // Gérer la taille si besoin
+        if (isset($field_mapping['size'])) {
+          $value = substr($value, 0, $field_mapping['size']);
+        }
+        break;
+    }
+  }
 }
