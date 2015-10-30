@@ -109,12 +109,11 @@ abstract class ObjectMapping {
               if ($valDriverMapInstance->mapping()['Driver'] == $this->_driverMappingInstances[$instance_id]->mapping()['Driver']) {
                 // On récupère l'instance liée à l'instance courante, et on ajoute les valeurs au tableau
                 $fields =& $this->_driverMappingInstances[$instance_id]->fields();
-                $hasChanged =& $this->_driverMappingInstances[$instance_id]->hasChanged();
                 if (!isset($fields[$field_mapping['field']])) {
                   $fields[$field_mapping['name']] = array();
                 }
                 $fields[$field_mapping['name']][] = $valDriverMapInstance->fields();
-                $hasChanged[$field_mapping['name']] = true;
+                $this->_driverMappingInstances[$instance_id]->hasChanged()[$field_mapping['name']] = true;
               }
             }
             return;
@@ -130,12 +129,11 @@ abstract class ObjectMapping {
                     if ($valDriverMapInstance->mapping()['Driver'] == $this->_driverMappingInstances[$instance_id]->mapping()['Driver']) {
                       // On récupère l'instance liée à l'instance courante, et on ajoute les valeurs au tableau
                       $fields =& $this->_driverMappingInstances[$instance_id]->fields();
-                      $hasChanged =& $this->_driverMappingInstances[$instance_id]->hasChanged();
                       if (!isset($fields[$field_mapping['name']])) {
                         $fields[$field_mapping['name']] = array();
                       }
                       $fields[$field_mapping['name']][] =& $valDriverMapInstance->fields();
-                      $hasChanged[$field_mapping['name']] = true;
+                      $this->_driverMappingInstances[$instance_id]->hasChanged()[$field_mapping['name']] = true;
                     }
                   }
                 }
@@ -176,6 +174,7 @@ abstract class ObjectMapping {
         if (isset($field_mapping['ObjectType'])) {
           // Récupération des champs de l'instance (par référence)
           $fields =& $this->_driverMappingInstances[$instance_id]->fields();
+          $this->_driverMappingInstances[$instance_id]->hasChanged()[$field_mapping['name']] = true;
           if (isset($field_mapping['type'])
               && $field_mapping['type'] == 'list') {
             if (isset($fields[$field_mapping['name']])) {
