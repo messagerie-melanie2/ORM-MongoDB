@@ -24,7 +24,6 @@
 
 $config['db']['default'] = array();
 $config['db']['default']['driver'] = 'MongoDB';
-$config['db']['default']['dsn'] = 'mongodb://localhost';
+$config['db']['default']['dsn'] = 'mongodb://localhost:27017';
 $config['db']['default']['database'] = 'messagerie';
-$config['db']['default']['username'] = '';
-$config['db']['default']['password'] = '';
+$config['db']['default']['options'] = array("connect" => true);
