@@ -31,7 +31,7 @@ abstract class DriverMapping {
    * Liste des instances des Drivers Mapping
    * @var array
    */
-  private static $instances = [];
+  private static $instances = array();
 
   /**
    * Identifiant de l'instance courante
@@ -43,7 +43,6 @@ abstract class DriverMapping {
    * @var resource
    */
   private $_driver;
-
   /**
    * Configuration du mapping
    * @var array
@@ -64,7 +63,11 @@ abstract class DriverMapping {
    * @var boolean
    */
   protected $_isList;
-
+  /**
+   * Est-ce que la requête demande un count
+   * @var boolean
+   */
+  protected $_isCount;
   /**
    * Liste des champs à lister pour une requête de type search
    * @var array
@@ -111,7 +114,7 @@ abstract class DriverMapping {
    * @param string $mapping Configuration de mapping pour l'instance
    * @return DriverMapping
    */
-  public static function get_instance($mapping = null, $instance_id = null) {
+  public static function get_instance(&$mapping = null, $instance_id = null) {
     // Génération de l'identifiant
     if (!isset($instance_id)) {
       $instance_id = uniqid();
@@ -128,11 +131,52 @@ abstract class DriverMapping {
   }
 
   /**
+   * Constructeur par défaut du driver mapping
+   * Doit être appelé par tous les drivers mapping
+   * @param $mapping Pointeur vers la configuration du mapping
+   * @param $instance_id Identifiant de l'instance du driver mapping
+   */
+  public function __construct(&$mapping, $instance_id) {
+    $this->_mapping = $mapping;
+    // Génération de l'identifiant de l'instance
+    $this->_instance_id = $instance_id;
+
+    // Inverse le mapping pour faciliter le traitement
+    $this->_reverseMapping();
+    // Initialisation
+    $this->_hasChanged = array();
+    $this->_fields = array();
+
+    // Si des méthodes sont configurés on récupère le driver associé
+    if (isset($mapping['methods'])) {
+      // Initialisation du driver
+      $this->_driver = Driver::get_instance($this->_mapping['Driver']);
+    }
+
+    // Initialise les arguments
+    $this->_init_arguments();
+
+    // Appel l'initialisation
+    $this->init();
+  }
+
+  /**
    * Fonction d'initialisation
    * Appelé par le constructeur de la classe abstraite
    */
   abstract function init();
-
+  /**
+   * Récupération des champs mappés pour l'insertion dans la base de données
+   * @return array
+   */
+  abstract function getMappingFields();
+  /**
+   * Défini les champs mappés suite à une lecture dans la base de données
+   * @recursive
+   * @param array $mappingFields
+   * @param string clé parente
+   */
+  abstract function setMappingFields($mappingFields, $mKey = null);
   /**
    * Retourne la liste des champs de recherche avec les valeurs
    * TODO: Associer plus d'informations via les operations etc
@@ -142,41 +186,16 @@ abstract class DriverMapping {
    * @return array
    */
   abstract function getSearchFields($usePrimaryKeys = true, $fieldsForSearch = null);
-
   /**
    * Liste les champs à mettre à jour
    * @return array
    */
   abstract function getUpdateFields();
-
   /**
    * Récupération des options pour la requête
    * @return array
    */
   abstract function getOptions();
-
-  /**
-   * Constructeur par défaut du driver mapping
-   * Doit être appelé par tous les drivers mapping
-   */
-  public function __construct($mapping, $instance_id) {
-    $this->_mapping = $mapping;
-    $this->_instance_id = $instance_id;
-    // Inverse le mapping pour faciliter le traitement
-    $this->_reverseMapping();
-    // Initialisation
-    $this->_hasChanged = array();
-    $this->_fields = array();
-
-    // Initialisation du driver
-    $this->_driver = Driver::get_instance($this->_mapping['Driver']);
-
-    // Initialise les arguments
-    $this->_init_arguments();
-
-    // Appel l'initialisation
-    $this->init();
-  }
 
   /**
    * Inverse le mapping de la configuration
@@ -187,6 +206,9 @@ abstract class DriverMapping {
       $this->_mapping['reverse'] = array();
       foreach ($this->_mapping['fields'] as $key => $field) {
         if (is_array($field)) {
+          if (!isset($field['name'])) {
+            continue;
+          }
           $name = $field['name'];
         }
         else {
@@ -202,6 +224,7 @@ abstract class DriverMapping {
    */
   public function _init_arguments() {
     $this->_isList = false;
+    $this->_isCount = false;
     $this->_listFields = array();
     $this->_operators = array();
     $this->_filter = null;
@@ -227,6 +250,33 @@ abstract class DriverMapping {
   }
 
   /**
+   * Permet de copier par référence les fields
+   * @param string $fields
+   */
+  public function &fields(&$fields = null) {
+    if (isset($fields)) {
+      $this->_fields =& $fields;
+      return $fields;
+    }
+    else {
+      return $this->_fields;
+    }
+  }
+  /**
+   * Permet de copier par référence le hasChanged
+   * @param string $hasChanged
+   */
+  public function &hasChanged(&$hasChanged = null) {
+    if (isset($hasChanged)) {
+      $this->_hasChanged =& $hasChanged;
+      return $hasChanged;
+    }
+    else {
+      return $this->_hasChanged;
+    }
+  }
+
+  /**
    * Getter/setter pour le mapping
    * @param array $mapping
    * @return array
@@ -239,7 +289,6 @@ abstract class DriverMapping {
       return $this->_mapping;
     }
   }
-
   /**
    * Getter/Setter pour savoir s'il s'agit d'une liste
    * @param boolean $isList
@@ -251,6 +300,19 @@ abstract class DriverMapping {
     }
     else {
       return $this->_isList;
+    }
+  }
+  /**
+   * Getter/Setter pour savoir s'il faut faire un count
+   * @param boolean $isCount
+   * @return boolean
+   */
+  public function isCount($isCount = null) {
+    if (isset($isCount)) {
+      $this->_isCount = $isCount;
+    }
+    else {
+      return $this->_isCount;
     }
   }
   /**
@@ -424,8 +486,48 @@ abstract class DriverMapping {
    * @ignore
    */
   public function __call($name, $arguments) {
+    // Récupération du mapping de la méthode
+    $methods_mapping = $arguments[0];
     // Appel la méthode
     $result = $this->_driver->$name($this);
+    if ($this->isList()) {
+      if (isset($methods_mapping['mapData'])
+          && $methods_mapping['mapData']) {
+        $data = array();
+        foreach ($result as $res) {
+          $object = self::get_instance($this->mapping());
+          $object->setMappingFields($res);
+          $data[] = $object;
+        }
+        $result = $data;
+      }
+    }
+    elseif (isset($methods_mapping['mapData'])
+        && $methods_mapping['mapData']) {
+      if (isset($result)) {
+        $this->setMappingFields($result);
+      }
+    }
+    // Gestion des resultats
+    if (isset($methods_mapping['return'])) {
+      switch ($methods_mapping['return']) {
+        case 'boolean':
+          if (!is_bool($result)) {
+            $result = isset($result);
+          }
+          break;
+        case 'array':
+          if (!is_array($result)) {
+            $result = array($result);
+          }
+          break;
+        case 'integer':
+          if (!is_int($result)) {
+            $result = intval($result);
+          }
+          break;
+      }
+    }
     // Réinitialise les arguments
     $this->_init_arguments();
     return $result;

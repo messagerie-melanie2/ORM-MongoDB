@@ -31,29 +31,13 @@ abstract class Driver {
    * Instances
    * @var Driver[]
    */
-  private static $instances = [];
+  private static $instances = array();
 
   /**
    * Connexion courante vers le driver
    * @var resource
    */
   protected $connexion;
-  /**
-   * URL utilisée pour la connexion
-   * Data Source Name
-   * @var string
-   */
-  protected $dsn;
-  /**
-   * Utilisateur pour la connexion
-   * @var string
-   */
-  protected $username;
-  /**
-   * Mot de passe pour la connexion
-   * @var string
-   */
-  protected $password;
   /**
    * Configuration global de la connexion
    * @var array
@@ -86,14 +70,8 @@ abstract class Driver {
    * Instancie la configuration
    * @param array $config
    */
-  public function __construct($config) {
-    $this->dsn = $config['dsn'];
-    $this->username = $config['username'];
-    $this->password = $config['password'];
-
-    unset($config['dsn']);unset($config['username']);unset($config['password']);
+  public function __construct(&$config) {
     $this->config = $config;
-
     $this->connect();
   }
 
