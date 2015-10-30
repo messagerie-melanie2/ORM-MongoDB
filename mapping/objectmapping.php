@@ -162,38 +162,25 @@ abstract class ObjectMapping {
             case 'datetime':
               try {
                 // Conversion en date/time
-                if ($value instanceof \DateTime) {
-                  if (isset($field_mapping['format'])) {
-                    $value = $value->format($field_mapping['format']);
-                  }
-                  else {
-                    $value = $value->format('Y-m-d H:i:s');
-                  }
-                }
-                else {
-                  if (isset($field_mapping['format'])) {
-                    $value = date($field_mapping['format'], strtotime($value));
-                  }
-                  else {
-                    $value = date('Y-m-d H:i:s', strtotime($value));
-                  }
+                if (!$value instanceof \DateTime) {
+                  $value = new \DateTime($value);
                 }
               }
               catch (Exception $ex) {
                 // Une erreur s'est produite, on met une valeur par défaut pour le pas bloquer la lecture des données
-                $value = "1970-01-01 00:00:00";
+                $value = new \DateTime("1970-01-01 00:00:00");
               }
               break;
             case 'timezone':
               try {
                 // Conversion du timezone
-                if ($value instanceof \DateTimeZone) {
-                  $value = $value->getName();
+                if (!$value instanceof \DateTimeZone) {
+                  $value = new \DateTimeZone($value);
                 }
               }
               catch (Exception $ex) {
                 // Une exception se produit on met en GMT par défaut
-                $value = 'GMT';
+                $value = new \DateTimeZone('GMT');
               }
               break;
             case 'timestamp':
