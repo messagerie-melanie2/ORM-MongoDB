@@ -32,7 +32,7 @@ namespace ORM\API\PHP;
  * @property timestamp $modified Date de modification de la pièce jointe (binaire)
  * @property string $data Données de pièce jointe
  */
-class Attachment extends \ORM\Mapping\ObjectMapping {
+class Attachment extends \ORM\Core\Mapping\ObjectMapping {
   /**
    * CONSTANTES
    */

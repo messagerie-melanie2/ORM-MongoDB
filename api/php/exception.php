@@ -42,7 +42,7 @@ namespace ORM\API\PHP;
  * @property Alarm $alarm Alarme pour l'exception
  * @property Attachment[] $attachments Liste de pièces jointes pour l'exception
  */
-class Exception extends \ORM\Mapping\ObjectMapping {
+class Exception extends \ORM\Core\Mapping\ObjectMapping {
   /**
    * Méthode d'initialisation de l'objet
    * Appelé dans le constructeur de l'ObjectMapping

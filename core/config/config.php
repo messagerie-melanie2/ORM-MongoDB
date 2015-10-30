@@ -19,29 +19,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace ORM\API\PHP;
-
-use \ORM\Plugins\Messaging\ICS;
+namespace ORM\Core\Config;
 
 /**
- * Objet Alarm pour les API Event
- *
- * @property string $trigger Durée de l'alarme
- * @property Alarm::ACTION_* $action Action à effectuer pour l'alarme
+ * Gestion de la configuration
  */
-class Alarm extends \ORM\Core\Mapping\ObjectMapping {
+class Config {
   /**
-   * CONSTANTES
+   * Récupère une valeur de la configuration
+   * Possibilité de concaténer avec les '.' pour les valeurs de sous tableaux ex : db.default.driver
+   * @param string $name
    */
-  // ACTION Fields
-  const ACTION_AUDIO = ICS::ACTION_AUDIO;
-  const ACTION_DISPLAY = ICS::ACTION_DISPLAY;
-  const ACTION_EMAIL = ICS::ACTION_EMAIL;
-  const ACTION_PROCEDURE = ICS::ACTION_PROCEDURE;
-
-  /**
-   * Méthode d'initialisation de l'objet
-   * Appelé dans le constructeur de l'ObjectMapping
-   */
-  protected function init() {}
+  public static function get($name) {
+    global $config;
+    // Découpage du nom
+    $names = explode('.', $name);
+    // Parcours les noms
+    foreach ($names as $n) {
+      if (!isset($value) && isset($config[$n])) {
+        $value = $config[$n];
+      }
+      elseif (isset($value[$n])) {
+        $value = $value[$n];
+      }
+      else {
+        $value = null;
+        break;
+      }
+    }
+    // Retourne la valeur
+    return $value;
+  }
 }

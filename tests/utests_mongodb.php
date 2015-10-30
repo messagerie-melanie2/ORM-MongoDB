@@ -4,11 +4,11 @@ include_once 'includes/orm.php';
 
 use ORM\API\PHP;
 
-ORM\Log\ORMLog::InitDebugLog(function($message) {
+ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
   echo "[DEBUG] $message\r\n";
 });
 
-ORM\Log\ORMLog::InitErrorLog(function($message) {
+ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
   echo "[ERROR] $message\r\n";
 });
 
@@ -21,12 +21,12 @@ $event->title = "Test événement 2 [Update]";
 $event->description = "Ceci est un test pour validation";
 
 $timezone = new DateTimeZone("Europe/Paris");
-$event->start = new DateTime("2015-10-27 17:00:00", $timezone);
+$event->start = new DateTime("2015-10-28 17:00:00", $timezone);
 
-$event->end = new DateTime("2015-10-27 18:00:00", $timezone);
+$event->end = new DateTime("2015-10-28 18:00:00", $timezone);
 
 $event->organizer->name = 'TEST1 Thomas';
-$event->organizer->email = 'thomas.test1@i-carre.net';
+$event->organizer->email = 'thomas.test1@developpement-durable.gouv.fr';
 
 $event->categories = array('Test', 'MongoDB');
 
@@ -37,7 +37,7 @@ $attendees = array();
 
 $attendee = new PHP\Attendee();
 $attendee->name = 'TEST2 Thomas';
-$attendee->email = 'thomas.test2@developpement-durable.gouv.fr';
+$attendee->email = 'thomas.test2@i-carre.net';
 $attendee->response = $attendee::RESPONSE_ACCEPTED;
 $attendee->role = $attendee::ROLE_REQ_PARTICIPANT;
 $attendees[] = $attendee;

@@ -19,29 +19,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace ORM\API\PHP;
-
-use \ORM\Plugins\Messaging\ICS;
+namespace ORM\Core\Mapping;
 
 /**
- * Objet Alarm pour les API Event
- *
- * @property string $trigger Durée de l'alarme
- * @property Alarm::ACTION_* $action Action à effectuer pour l'alarme
+ * Gestion du mapping par plugin
+ * Tous les plugins doivent implémenter cette classe
+ * Permet de supporter de nouveau format de conversion
  */
-class Alarm extends \ORM\Core\Mapping\ObjectMapping {
-  /**
-   * CONSTANTES
-   */
-  // ACTION Fields
-  const ACTION_AUDIO = ICS::ACTION_AUDIO;
-  const ACTION_DISPLAY = ICS::ACTION_DISPLAY;
-  const ACTION_EMAIL = ICS::ACTION_EMAIL;
-  const ACTION_PROCEDURE = ICS::ACTION_PROCEDURE;
+abstract class PluginMapping {
 
-  /**
-   * Méthode d'initialisation de l'objet
-   * Appelé dans le constructeur de l'ObjectMapping
-   */
-  protected function init() {}
 }

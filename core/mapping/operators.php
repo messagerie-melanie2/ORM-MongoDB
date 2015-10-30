@@ -19,29 +19,50 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace ORM\API\PHP;
-
-use \ORM\Plugins\Messaging\ICS;
+namespace ORM\Core\Mapping;
 
 /**
- * Objet Alarm pour les API Event
- *
- * @property string $trigger Durée de l'alarme
- * @property Alarm::ACTION_* $action Action à effectuer pour l'alarme
+ * Liste des opérateurs utilisables pour une requête de recherche
  */
-class Alarm extends \ORM\Core\Mapping\ObjectMapping {
+class Operators {
   /**
-   * CONSTANTES
+   * Greater than
    */
-  // ACTION Fields
-  const ACTION_AUDIO = ICS::ACTION_AUDIO;
-  const ACTION_DISPLAY = ICS::ACTION_DISPLAY;
-  const ACTION_EMAIL = ICS::ACTION_EMAIL;
-  const ACTION_PROCEDURE = ICS::ACTION_PROCEDURE;
-
+  const gt = "gt";
   /**
-   * Méthode d'initialisation de l'objet
-   * Appelé dans le constructeur de l'ObjectMapping
+   * Greater than and equal
    */
-  protected function init() {}
+  const gte = "gte";
+  /**
+   * Lower than
+   */
+  const lt = "lt";
+  /**
+   * Lower than and equal
+   */
+  const lte = "lte";
+  /**
+   * Not equal
+   */
+  const neq = "neq";
+  /**
+   * Like
+   */
+  const like = "like";
+  /**
+   * Equal
+   */
+  const eq = "eq";
+  /**
+   * In
+   */
+  const in = "in";
+  /**
+   * Or
+   */
+  const or_ = "or";
+  /**
+   * And
+   */
+  const and_ = "and";
 }

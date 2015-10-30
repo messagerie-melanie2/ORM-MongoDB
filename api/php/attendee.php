@@ -31,7 +31,7 @@ use \ORM\Plugins\Messaging\ICS;
  * @property string $role Role du participant
  * @property string $response Reponse du participant
  */
-class Attendee extends \ORM\Mapping\ObjectMapping {
+class Attendee extends \ORM\Core\Mapping\ObjectMapping {
   // Attendee Response Fields
   const RESPONSE_NEED_ACTION = ICS::PARTSTAT_NEEDS_ACTION;
   const RESPONSE_ACCEPTED = ICS::PARTSTAT_ACCEPTED;

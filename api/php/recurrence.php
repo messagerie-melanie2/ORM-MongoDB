@@ -36,7 +36,7 @@ use \ORM\Plugins\Messaging\ICS;
  * @property \DateTime $until Date de fin de récurrence
  * @property string $wkst Week start, jour de démarrage de la semaine
  */
-class Recurrence extends \ORM\Mapping\ObjectMapping {
+class Recurrence extends \ORM\Core\Mapping\ObjectMapping {
   /**
    * CONSTANTES
    */

@@ -27,7 +27,7 @@ namespace ORM\API\PHP;
  * @property string $name Nom de l'organisateur
  * @property string $email Email de l'organisateur
  */
-class Organizer extends \ORM\Mapping\ObjectMapping {
+class Organizer extends \ORM\Core\Mapping\ObjectMapping {
   /**
    * Méthode d'initialisation de l'objet
    * Appelé dans le constructeur de l'ObjectMapping

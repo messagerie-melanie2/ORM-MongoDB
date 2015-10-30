@@ -55,7 +55,7 @@ use \ORM\Plugins\Messaging\ICS;
  * @method bool exists() Est-ce que l'événement courant existe dans la base de données ?
  * @method bool delete() Supprime l'évènement et met à jour l'historique dans la base de données
  */
-class Event extends \ORM\Mapping\ObjectMapping {
+class Event extends \ORM\Core\Mapping\ObjectMapping {
   /**
    * CONSTANTES
    */

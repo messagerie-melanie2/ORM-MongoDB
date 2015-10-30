@@ -21,7 +21,7 @@
  */
 
 /* Chargement de l'environnement */
-include_once(__DIR__ . '/../config/env.php');
+include_once(__DIR__ . '/../config/env.inc.php');
 /* Chargement de la configuration par défaut */
 include_once(__DIR__ . '/../config/default.inc.php');
 
