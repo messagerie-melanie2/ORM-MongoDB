@@ -53,7 +53,7 @@ class MongoDB extends \ORM\DB\Driver {
     // Initialisation de la liste des collections
     $this->_collections = array();
     // Connexion au serveur MongoDB
-    $this->_connexion = new \MongoClient($this->dsn, $options, $driver_options);
+    $this->_connexion = new \MongoClient($this->config['dsn'], $options, $driver_options);
     if ($this->_connexion->connect()) {
       $this->_db = $this->_connexion->selectDB($this->config['database']);
       return true;
@@ -64,6 +64,7 @@ class MongoDB extends \ORM\DB\Driver {
   }
   /**
    * Déconnexion de la base MongoDB
+   * @return boolean True si ok, false sinon
    */
   public function disconnect() {
     // Pas de déconnexion en MongoDB
@@ -86,8 +87,10 @@ class MongoDB extends \ORM\DB\Driver {
   /**
    * Création d'un objet
    * @param \ORM\DB\DriverMapping $args
+   * @return boolean True si ok, false sinon
    */
   public function create(\ORM\DB\DriverMapping $args) {
+    \ORM\Log\ORMLog::Log(\ORM\Log\ORMLog::LEVEL_DEBUG, "[Driver:MongoDB]->create()");
     $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
@@ -111,61 +114,58 @@ class MongoDB extends \ORM\DB\Driver {
   /**
    * Récupération d'un objet
    * @param \ORM\DB\DriverMapping $args
+   * @return mixed array of array dans le cas d'une liste, array dans le cas d'un résultat simple, integer dans le cas d'un count
    */
   public function read(\ORM\DB\DriverMapping $args) {
+    \ORM\Log\ORMLog::Log(\ORM\Log\ORMLog::LEVEL_DEBUG, "[Driver:MongoDB]->read()");
     $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
       if ($args->isList()) {
-        $cursor = $collection->find($args->getSearchFields(), $args->listFields());
-        // Récupération des paramètres du curseur
-        $limit = $args->limit();
-        if (isset($limit)
-            && is_numeric($limit)) {
-          // Limit sur le curseur mongo
-          $cursor->limit($limit);
-        }
-        $offset = $args->offset();
-        if (isset($offset)
-            && is_numeric($offset)) {
-          // skip sur le curseur mongo
-          $cursor->skip($offset);
-        }
-        $orderBy = $args->orderBy();
-        $asc = $args->asc();
-        if (isset($orderBy)) {
-          $sort = array();
-          if (is_array($orderBy)) {
-            foreach ($orderBy as $field) {
-              $sort[$field] = $asc ? 1 : -1;
-            }
-          }
-          else {
-            $sort[$orderBy] = $asc ? 1 : -1;
-          }
-          // Sort sur le curseur mongo
-          $cursor->sort($sort);
-        }
-        $mongoMaps = array();
-        // Traitement des résultats
-        while ($cursor->hasNext()) {
-          $data = $cursor->next();
-          $mongoMap = new MongoDBMapping($args->mapping());
-          $mongoMap->setMappingFields($data);
-          $mongoMaps[] = $mongoMap;
-        }
-        $ret = $mongoMaps;
-      }
-      else {
-        $result = $collection->findOne($args->getSearchFields(), $args->listFields());
-        // Traitement du résultat
-        if (isset($result)) {
-          $args->setMappingFields($result);
-          $ret = true;
+        // Est-ce qu'on souhaite faire un count
+        if ($args->isCount()) {
+          $ret = $cursor->count($args->getSearchFields(), $args->getOptions());
         }
         else {
-          $ret = false;
+          $cursor = $collection->find($args->getSearchFields(), $args->listFields());
+          // Récupération des paramètres du curseur
+          $limit = $args->limit();
+          if (isset($limit)
+              && is_numeric($limit)) {
+            // Limit sur le curseur mongo
+            $cursor->limit($limit);
+          }
+          $offset = $args->offset();
+          if (isset($offset)
+              && is_numeric($offset)) {
+            // skip sur le curseur mongo
+            $cursor->skip($offset);
+          }
+          $orderBy = $args->orderBy();
+          $asc = $args->asc();
+          if (isset($orderBy)) {
+            $sort = array();
+            if (is_array($orderBy)) {
+              foreach ($orderBy as $field) {
+                $sort[$field] = $asc ? 1 : -1;
+              }
+            }
+            else {
+              $sort[$orderBy] = $asc ? 1 : -1;
+            }
+            // Sort sur le curseur mongo
+            $cursor->sort($sort);
+          }
+          $data = array();
+          // Traitement des résultats
+          while ($cursor->hasNext()) {
+            $data[] = $cursor->next();
+          }
+          $ret = $data;
         }
+      }
+      else {
+        $ret = $collection->findOne($args->getSearchFields(), $args->listFields());
       }
     }
     catch (\MongoCursorException  $ex) {
@@ -186,8 +186,10 @@ class MongoDB extends \ORM\DB\Driver {
   /**
    * Mise à jour d'un objet
    * @param \ORM\DB\DriverMapping $args
+   * @return boolean True si ok, false sinon
    */
   public function update(\ORM\DB\DriverMapping $args) {
+    \ORM\Log\ORMLog::Log(\ORM\Log\ORMLog::LEVEL_DEBUG, "[Driver:MongoDB]->update()");
     $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
@@ -211,11 +213,14 @@ class MongoDB extends \ORM\DB\Driver {
   /**
    * Suppression d'un objet
    * @param \ORM\DB\DriverMapping $args
+   * @return boolean True si ok, false sinon
    */
   public function delete(\ORM\DB\DriverMapping $args) {
+    \ORM\Log\ORMLog::Log(\ORM\Log\ORMLog::LEVEL_DEBUG, "[Driver:MongoDB]->delete()");
+    $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
-      $result = $collection->remove($args->getSearchFields(true), $args->getOptions());
+      $ret = $collection->remove($args->getSearchFields(true), $args->getOptions());
     }
     catch (\MongoCursorException  $ex) {
       \ORM\Log\ORMLog::Log(\ORM\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex->getTraceAsString());
@@ -229,5 +234,6 @@ class MongoDB extends \ORM\DB\Driver {
     catch (\Exception $ex) {
       \ORM\Log\ORMLog::Log(\ORM\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex->getTraceAsString());
     }
+    return $ret;
   }
 }

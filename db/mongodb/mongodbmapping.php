@@ -142,9 +142,9 @@ class MongoDBMapping extends \ORM\DB\DriverMapping {
   public function getUpdateFields() {
     $updateFields = array();
     // Parcours les champs pour retourner la recherche
-    foreach ($this->_hasChanged as $key => $use) {
+    foreach ($this->_hasChanged as $key => $haschanged) {
       if ($haschanged) {
-        $updateFields[$key] = $this->_fields[$key];
+        $this->_mapField($key, $this->_fields[$key], $updateFields);
       }
     }
     return array('$set' => $updateFields);
