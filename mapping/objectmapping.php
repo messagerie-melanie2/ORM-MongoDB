@@ -32,20 +32,15 @@ abstract class ObjectMapping {
    */
   private $_objectType;
   /**
-   * Configuration du mapping pour le ou les objets courants
+   * Liste des instances
    * @var array[]
    */
-  private $_mapping;
+  private $_instances;
   /**
    * Driver Mapping associé à le ou les objets courants
    * @var \ORM\DB\DriverMapping[]
    */
-  private $_driverMappingInstance;
-  /**
-   * Défini si l'objet courant existe ou pas
-   * @var boolean
-   */
-  private $_isExists;
+  private $_driverMappingInstances;
 
   /**
    * Constructeur par défaut de l'object mapping
@@ -58,16 +53,16 @@ abstract class ObjectMapping {
     $mapping = \ORM\Config\Config::get('mapping');
 
     // Initialisation des array
-    $this->_mapping = array();
-    $this->_driverMappingInstance = array();
+    $this->_instances = array();
+    $this->_driverMappingInstances = array();
 
     // Parcours les mappings disponibles
     foreach ($mapping as $map) {
       if ($map['ObjectType'] == $this->_objectType) {
         // Initialisation de l'instance
         $instance = \ORM\DB\DriverMapping::get_instance($map);
-        $this->_driverMappingInstance[$instance->instanceId()] = $instance;
-        $this->_mapping[$instance->instanceId()] = $map;
+        $this->_driverMappingInstances[$instance->instanceId()] = $instance;
+        $this->_instances[] = $instance->instanceId();
       }
     }
 
@@ -82,6 +77,15 @@ abstract class ObjectMapping {
   abstract protected function init();
 
   /**
+   * Retourne les instances nécessaire au bon fonctionnement de l'objet
+   * Permet de faire des enfants de l'objet parent utilisant les mêmes instances
+   * @return array(instances, driverMappingInstances)
+   */
+  public function getDriverMappingInstances() {
+    return $this->_driverMappingInstances;
+  }
+
+  /**
    * PHP magic to set an instance variable
    *
    * @param string $name Nom de la propriété
@@ -91,11 +95,55 @@ abstract class ObjectMapping {
    * @ignore
    */
   public function __set($name, $value) {
-    foreach($this->_mapping as $instance_id => $mapping) {
+    foreach($this->_instances as $instance_id) {
+      $mapping = $this->_driverMappingInstances[$instance_id]->mapping();
       // Gestion du mapping configuré
       if (isset($mapping['fields'])
           && isset($mapping['fields'][$name])) {
         $field_mapping = $mapping['fields'][$name];
+        // Si le champ est un objet complexe
+        if (isset($field_mapping['ObjectType'])) {
+          if ($value instanceof ObjectMapping) {
+            // Cas d'un objet complexe unique, on lie les champs avec ceux de l'objet courant
+            foreach ($value->getDriverMappingInstances() as $valDriverMapInstance) {
+              if ($valDriverMapInstance->mapping()['Driver'] == $this->_driverMappingInstances[$instance_id]->mapping()['Driver']) {
+                // On récupère l'instance liée à l'instance courante, et on ajoute les valeurs au tableau
+                $fields =& $this->_driverMappingInstances[$instance_id]->fields();
+                $hasChanged =& $this->_driverMappingInstances[$instance_id]->hasChanged();
+                if (!isset($fields[$field_mapping['field']])) {
+                  $fields[$field_mapping['name']] = array();
+                }
+                $fields[$field_mapping['name']][] = $valDriverMapInstance->fields();
+                $hasChanged[$field_mapping['name']] = true;
+              }
+            }
+            return;
+          }
+          else if (is_array($value)) {
+            if (isset($field_mapping['type'])
+                && $field_mapping['type'] == 'list'
+                && isset($field_mapping['name'])) {
+              // Cas d'un tableau d'objets complexes, il faut lier les valeurs une par une
+              foreach ($value as $object) {
+                if ($object instanceof ObjectMapping) {
+                  foreach($object->getDriverMappingInstances() as $valDriverMapInstance) {
+                    if ($valDriverMapInstance->mapping()['Driver'] == $this->_driverMappingInstances[$instance_id]->mapping()['Driver']) {
+                      // On récupère l'instance liée à l'instance courante, et on ajoute les valeurs au tableau
+                      $fields =& $this->_driverMappingInstances[$instance_id]->fields();
+                      $hasChanged =& $this->_driverMappingInstances[$instance_id]->hasChanged();
+                      if (!isset($fields[$field_mapping['name']])) {
+                        $fields[$field_mapping['name']] = array();
+                      }
+                      $fields[$field_mapping['name']][] =& $valDriverMapInstance->fields();
+                      $hasChanged[$field_mapping['name']] = true;
+                    }
+                  }
+                }
+              }
+              return;
+            }
+          }
+        }
         // Si un typage est requis
         if (isset($field_mapping['type'])) {
           switch (strtolower($field_mapping['type'])) {
@@ -156,6 +204,12 @@ abstract class ObjectMapping {
                 $value = strtotime($value);
               }
               break;
+            case 'array':
+              // Conversion en tableau
+              if (!is_array($value)) {
+                $value = array($value);
+              }
+              break;
             case 'string':
             default:
               // Gérer la taille si besoin
@@ -169,7 +223,7 @@ abstract class ObjectMapping {
         if (isset($field_mapping['name'])) {
           $name = $field_mapping['name'];
         }
-        $this->_driverMappingInstance[$instance_id]->$name = $value;
+        $this->_driverMappingInstances[$instance_id]->$name = $value;
       }
     }
   }
@@ -183,17 +237,58 @@ abstract class ObjectMapping {
    * @ignore
    */
   public function __get($name) {
-    foreach($this->_mapping as $instance_id => $mapping) {
+    foreach($this->_instances as $instance_id) {
+      $mapping = $this->_driverMappingInstances[$instance_id]->mapping();
       // Gestion du mapping configuré
       if (isset($mapping['fields'])
           && isset($mapping['fields'][$name])) {
         $field_mapping = $mapping['fields'][$name];
+        // Si le champ est un objet complexe
+        if (isset($field_mapping['ObjectType'])) {
+          // Récupération des champs de l'instance (par référence)
+          $fields =& $this->_driverMappingInstances[$instance_id]->fields();
+          if (isset($field_mapping['type'])
+              && $field_mapping['type'] == 'list') {
+            if (isset($fields[$field_mapping['name']])) {
+              $value = array();
+              foreach ($fields[$field_mapping['name']] as &$field_array) {
+                $class_name = 'ORM\\API\\'.$field_mapping['ObjectType'];
+                $object = new $class_name();
+                // Lien par référence vers les objets
+                foreach($object->getDriverMappingInstances() as $valDriverMapInstance) {
+                  if ($valDriverMapInstance->mapping()['Driver'] == $this->_driverMappingInstances[$instance_id]->mapping()['Driver']) {
+                    // Associe par référence les champs de l'objet courant avec les champs de l'objet parent
+                    $valDriverMapInstance->fields($field_array);
+                  }
+                }
+                $value[] = $object;
+              }
+            }
+            else {
+              $value = null;
+            }
+          }
+          else {
+            $class_name = 'ORM\\API\\'.$field_mapping['ObjectType'];
+            $value = new $class_name();
+            foreach($value->getDriverMappingInstances() as $valDriverMapInstance) {
+              if ($valDriverMapInstance->mapping()['Driver'] == $this->_driverMappingInstances[$instance_id]->mapping()['Driver']) {
+                if (!isset($fields[$field_mapping['name']])) {
+                  $fields[$field_mapping['name']] = array();
+                }
+                // Associe par référence les champs de l'objet courant avec les champs de l'objet parent
+                $valDriverMapInstance->fields($fields[$field_mapping['name']]);
+              }
+            }
+          }
+          return $value;
+        }
         // Nom de mapping
         if (isset($field_mapping['name'])) {
           $name = $field_mapping['name'];
         }
       }
-      return $this->_driverMappingInstance[$instance_id]->$name;
+      return $this->_driverMappingInstances[$instance_id]->$name;
     }
     return null;
   }
@@ -207,7 +302,8 @@ abstract class ObjectMapping {
    * @ignore
    */
   public function __isset($name) {
-    foreach($this->_mapping as $instance_id => $mapping) {
+    foreach($this->_instances as $instance_id) {
+      $mapping = $this->_driverMappingInstances[$instance_id]->mapping();
       if (isset($mapping['fields'])
           && isset($mapping['fields'][$name])) {
         $field_mapping = $mapping['fields'][$name];
@@ -216,7 +312,7 @@ abstract class ObjectMapping {
           $name = $field_mapping['name'];
         }
       }
-      return isset($this->_driverMappingInstance[$instance_id]->$name);
+      return isset($this->_driverMappingInstances[$instance_id]->$name);
     }
     return false;
   }
@@ -230,7 +326,8 @@ abstract class ObjectMapping {
    * @ignore
    */
   public function __unset($name) {
-    foreach($this->_mapping as $instance_id => $mapping) {
+    foreach($this->_instances as $instance_id) {
+      $mapping = $this->_driverMappingInstances[$instance_id]->mapping();
       if (isset($mapping['fields'])
           && isset($mapping['fields'][$name])) {
         $field_mapping = $mapping['fields'][$name];
@@ -239,7 +336,7 @@ abstract class ObjectMapping {
           $name = $field_mapping['name'];
         }
       }
-      unset($this->_driverMappingInstance[$instance_id]->$name);
+      unset($this->_driverMappingInstances[$instance_id]->$name);
     }
   }
 
@@ -256,31 +353,49 @@ abstract class ObjectMapping {
    */
   public function __call($name, $arguments) {
     $ret = null;
-    foreach($this->_mapping as $instance_id => $mapping) {
+    foreach($this->_instances as $instance_id) {
+      $mapping = $this->_driverMappingInstances[$instance_id]->mapping();
       if (isset($mapping['methods'])
           && isset($mapping['methods'][$name])) {
         $methods_mapping = $mapping['methods'][$name];
+
         // Nom de mapping
         if (isset($methods_mapping['name'])) {
           $name = $methods_mapping['name'];
         }
+        else if (isset($methods_mapping['method'])) {
+          // Gestion des méthodes imbriquées
+          foreach ($methods_mapping['method'] as $key => $value) {
+            // Appel de la méthode
+            if (isset($mapping['methods'][$key]['name'])) {
+              $mapKey = $mapping['methods'][$key]['name'];
+            }
+            else {
+              $mapKey = $key;
+            }
+            $res = $this->_driverMappingInstances[$instance_id]->$mapKey($mapping['methods'][$key]);
+            $name = $value[$res];
+            return $this->__call($name, $arguments);
+          }
+        }
         // Sagit-il d'une liste ?
         if (isset($methods_mapping['return'])
             && $methods_mapping['return'] == 'list') {
-          $this->_driverMappingInstance[$instance_id]->isList(true);
+          $this->_driverMappingInstances[$instance_id]->isList(true);
         }
         else {
-          $this->_driverMappingInstance[$instance_id]->isList(false);
+          $this->_driverMappingInstances[$instance_id]->isList(false);
         }
         // Mapping des paramètres
         if (isset($methods_mapping['arguments'])) {
           foreach ($methods_mapping['arguments'] as $key => $argument) {
             // Map d'argument avec le driver Mapping, via l'identifiant du tableau
-            $this->_driverMappingInstance[$instance_id]->$argument($arguments[$key]);
+            $this->_driverMappingInstances[$instance_id]->$argument($arguments[$key]);
           }
         }
         // Appel de la méthode
-        $result = $this->_driverMappingInstance[$instance_id]->$name();
+        $result = $this->_driverMappingInstances[$instance_id]->$name($methods_mapping);
+
         // Combinaison des résultats
         if (!isset($methods_mapping['results'])
             || !isset($methods_mapping['results']) != 'combined') {
@@ -293,6 +408,7 @@ abstract class ObjectMapping {
             $ret = $result;
           }
           else {
+            // Type retourné par la méthode et imbrication des résultats
             switch ($methods_mapping['return']) {
               case 'boolean':
                 if (isset($methods_mapping['operator'])
