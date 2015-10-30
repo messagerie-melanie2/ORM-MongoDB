@@ -24,7 +24,6 @@ namespace ORM\API\PHP;
 /**
  * Objet Exception pour les API Event
  *
- * @property string $calendar Identifiant du calendrier de l'exception
  * @property string $uid UID de l'exception
  * @property string $owner Créateur de l'exception
  * @property boolean $deleted Si l'exception existe ou est supprimé
