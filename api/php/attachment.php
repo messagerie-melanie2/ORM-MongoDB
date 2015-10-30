@@ -25,11 +25,11 @@ namespace ORM\API\PHP;
  * Objet Attachment pour les API Event
  *
  * @property string $name Nom de la pièce jointe
- * @property Attachment::TYPE_* Type de pièce jointe (url ou binaire)
+ * @property Attachment::TYPE_* $type Type de pièce jointe (url ou binaire)
  * @property string $contentType Contentype de la pièce jointe (binaire)
  * @property string $owner Propriétaire de la pièce jointe (binaire)
  * @property Attachment::ENCODING_* $encoding Type d'encodage de la pièce jointe (binaire)
- * @property int $modified Date de modification de la pièce jointe (binaire)
+ * @property timestamp $modified Date de modification de la pièce jointe (binaire)
  * @property string $data Données de pièce jointe
  */
 class Attachment extends \ORM\Mapping\ObjectMapping {
