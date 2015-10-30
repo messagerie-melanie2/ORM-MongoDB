@@ -20,25 +20,68 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Définition d'un objet
+ *
+ * array(
+ *  'ObjectType' => '<Class PHP de l'objet>',
+ *  'Driver' => '<Nom du driver configuré>',
+ *  'CollectionName' => '<Collection ou table SQL>',
+ *  'primaryKeys' => array(<Tableau des clés primaires de l'objet>),
+ *  'fields' => array( // Liste des champs définis dans l'objet et mappés vers la base de données
+ *    <Nom du champ> => array(
+ *      'name' => <Nom du champ dans la base de données>,
+ *      'type' => <Type de données dans la base de données>,
+ *      'size' => <[Optionnel] Longueur maximum du champ dans la bdd>,
+ *      'default' => <[Optionnel] Valeur par défaut>,
+ *      'ObjectType' => <[Optionnel] Se réfaire un autre ObjectType défini dans le fichier>,
+ *    ),
+ *  ),
+ *  'methods' => array( // Liste des méthodes accessibles depuis l'objet, les méthodes sont mappées vers les méthodes du driver (created, read, update, delete)
+ *    <Nom de la méthode> => array(
+ *      'name' => <Nom de la méthode à appeler dans le driver>,
+ *      'return' => <Type de donnée à retourner par la méthode>,
+ *      'results' => <[Optionnel] "combined" si les résultats doivent être combinés entre tous les drivers (cas d'un objet sur plusieurs drivers)>,
+ *      'operator' => <[Optionnel] operateur de concaténation dans le cas de résultats combinés>,
+ *      'mapData' => <[Optionnel] Les données doivent directement être mappées sur l'objet>,
+ *      'var' => <[Optionnel] Le résultat de la méthode doivent être conservé en variable dans l'objet>,
+ *      'arguments' => array( // [Optionnel] Liste des arguments de la méthodes, l'ordre est important !
+ *        <Nom du champ utilisés, actuellement : 'listFields', 'filter', 'operators', 'orderBy', 'asc', 'limit', 'offset', 'unsensitiveFields',>
+ *      ),
+ *    ),
+ *  ),
+ * )
+ */
+
 /****** Mapping ********/
 $config['mapping'] = array(
+     // Objet event
      array(
         'ObjectType' => 'PHP\\Event',
         'Driver' => 'default',
         'CollectionName' => 'event',
-        'innerJoin' => array(),
-        'leftJoin' => array(),
-        'rightJoin' => array(),
         'primaryKeys' => array('vcalendar.vevent.uid' => true, 'calendar' => true),
         'fields' => array(
                 'uid' => array('name' => 'vcalendar.vevent.uid', 'type' => 'string'),
                 'calendar' => array('name' => 'calendar', 'type' => 'string'),
+                'owner' => array('name' => 'owner', 'type' => 'string'),
+                'etag' => array('name' => 'etag', 'type' => 'string'),
+                'deleted' => array('name' => 'owner', 'type' => 'boolean', 'defaut' => false),
                 'title' => array('name' => 'vcalendar.vevent.summary', 'type' => 'string'),
                 'description' => array('name' => 'vcalendar.vevent.description', 'type' => 'string'),
                 'start' => array('name' => 'vcalendar.vevent.dtstart', 'type' => 'datetime'),
                 'end' => array('name' => 'vcalendar.vevent.dtend', 'type' => 'datetime'),
-                'start_timezone' => array('name' => 'vcalendar.vevent.dtstart_timezone', 'type' => 'timezone'),
-                'end_timezone' => array('name' => 'vcalendar.vevent.dtend_timezone', 'type' => 'timezone'),
+                'created' => array('name' => 'vcalendar.vevent.created', 'type' => 'timestamp'),
+                'modified' => array('name' => 'vcalendar.vevent.modified', 'type' => 'timestamp'),
+                'class' => array('name' => 'vcalendar.vevent.class', 'type' => 'string'),
+                'status' => array('name' => 'vcalendar.vevent.status', 'type' => 'string'),
+                'categories' => array('name' => 'vcalendar.vevent.categories', 'type' => 'array'),
+                'organizer' => array('ObjectType' => 'PHP\\Organizer', 'name' => 'vcalendar.vevent.organizer'),
+                'attendees' => array('ObjectType' => 'PHP\\Attendee', 'type' => 'list', 'name' => 'vcalendar.vevent.attendees'),
+                'alarm' => array('ObjectType' => 'PHP\\Alarm', 'name' => 'vcalendar.vevent.valarm'),
+                'recurrence' => array('ObjectType' => 'PHP\\Recurrence', 'name' => 'vcalendar.vevent.recurrence'),
+                'attachments' => array('ObjectType' => 'PHP\\Attachment', 'type' => 'list', 'name' => 'vcalendar.vevent.attachments'),
+                'exceptions' => array('ObjectType' => 'PHP\\Exception', 'type' => 'list', 'name' => 'vcalendar.vevent.exceptions'),
         ),
         'methods' => array(
                 'load' => array(
@@ -46,6 +89,15 @@ $config['mapping'] = array(
                         'return' => 'boolean',
                         'results' => 'combined',
                         'operator' => 'and',
+                        'var' => true,
+                        'mapData' => true,
+                ),
+                'exists' => array(
+                        'name' => 'read',
+                        'return' => 'boolean',
+                        'results' => 'combined',
+                        'operator' => 'and',
+                        'var' => true,
                 ),
                 'insert' => array(
                         'name' => 'create',
@@ -60,7 +112,7 @@ $config['mapping'] = array(
                         'operator' => 'and',
                 ),
                 'save' => array(
-                        'name' => array('insert', 'update'),
+                        'method' => array('exists' => array(false => 'insert', true => 'update')),
                         'return' => 'boolean',
                         'results' => 'combined'
                 ),
@@ -73,6 +125,7 @@ $config['mapping'] = array(
                         'name' => 'read',
                         'return' => 'list',
                         'results' => 'combined',
+                        'mapData' => true,
                         'arguments' => array(
                                 'listFields',
                                 'filter',
@@ -85,5 +138,92 @@ $config['mapping'] = array(
                         ),
                 ),
         ),
+    ),
+    // Objet organizer
+    array(
+          'ObjectType' => 'PHP\\Organizer',
+          'Driver' => 'default',
+          'CollectionName' => 'event',
+          'fields' => array(
+                  'name' => array('name' => 'name', 'type' => 'string'),
+                  'email' => array('name' => 'email', 'type' => 'string'),
+          ),
+    ),
+    // Objet attendee
+    array(
+          'ObjectType' => 'PHP\\Attendee',
+          'Driver' => 'default',
+          'CollectionName' => 'event',
+          'fields' => array(
+                  'name' => array('name' => 'name', 'type' => 'string'),
+                  'email' => array('name' => 'email', 'type' => 'string'),
+                  'role' => array('name' => 'role', 'type' => 'string'),
+                  'response' => array('name' => 'partstat', 'type' => 'string'),
+          ),
+    ),
+    // Objet alarm
+    array(
+            'ObjectType' => 'PHP\\Alarm',
+            'Driver' => 'default',
+            'CollectionName' => 'event',
+            'fields' => array(
+                    'trigger' => array('name' => 'trigger', 'type' => 'string'),
+                    'action' => array('name' => 'action', 'type' => 'string'),
+            ),
+    ),
+    // Objet attachment
+    array(
+            'ObjectType' => 'PHP\\Attachment',
+            'Driver' => 'default',
+            'CollectionName' => 'event',
+            'fields' => array(
+                    'name' => array('name' => 'name', 'type' => 'string'),
+                    'type' => array('name' => 'type', 'type' => 'string'),
+                    'contentType' => array('name' => 'contentType', 'type' => 'string'),
+                    'owner' => array('name' => 'owner', 'type' => 'string'),
+                    'encoding' => array('name' => 'encoding', 'type' => 'string'),
+                    'modified' => array('name' => 'modified', 'type' => 'timestamp'),
+                    'data' => array('name' => 'data', 'type' => 'string'),
+            ),
+    ),
+    // Objet recurrence
+    array(
+            'ObjectType' => 'PHP\\Recurrence',
+            'Driver' => 'default',
+            'CollectionName' => 'event',
+            'fields' => array(
+                    'freq' => array('name' => 'freq', 'type' => 'string'),
+                    'count' => array('name' => 'count', 'type' => 'integer'),
+                    'interval' => array('name' => 'interval', 'type' => 'integer'),
+                    'byday' => array('name' => 'byday', 'type' => 'string'),
+                    'bymonth' => array('name' => 'bymonth', 'type' => 'string'),
+                    'bymonthday' => array('name' => 'bymonthday', 'type' => 'string'),
+                    'byyearday' => array('name' => 'byyearday', 'type' => 'string'),
+                    'until' => array('name' => 'until', 'type' => 'datetime'),
+                    'wkst' => array('name' => 'wkst', 'type' => 'string'),
+            ),
+    ),
+    // Objet exception
+    array(
+            'ObjectType' => 'PHP\\Exception',
+            'Driver' => 'default',
+            'CollectionName' => 'event',
+            'fields' => array(
+                    'uid' => array('name' => 'uid', 'type' => 'string'),
+                    'deleted' => array('name' => 'owner', 'type' => 'boolean', 'defaut' => false),
+                    'title' => array('name' => 'summary', 'type' => 'string'),
+                    'description' => array('name' => 'description', 'type' => 'string'),
+                    'start' => array('name' => 'dtstart', 'type' => 'datetime'),
+                    'end' => array('name' => 'dtend', 'type' => 'datetime'),
+                    'created' => array('name' => 'created', 'type' => 'timestamp'),
+                    'modified' => array('name' => 'modified', 'type' => 'timestamp'),
+                    'class' => array('name' => 'class', 'type' => 'string'),
+                    'status' => array('name' => 'status', 'type' => 'string'),
+                    'categories' => array('name' => 'categories', 'type' => 'array'),
+                    'organizer' => array('ObjectType' => 'PHP\\Organizer', 'name' => 'organizer'),
+                    'attendees' => array('ObjectType' => 'PHP\\Attendee', 'type' => 'list', 'name' => 'attendees'),
+                    'alarm' => array('ObjectType' => 'PHP\\Alarm', 'name' => 'valarm'),
+                    'attachments' => array('ObjectType' => 'PHP\\Attachment', 'type' => 'list', 'name' => 'attachments'),
+            ),
     ),
 );
