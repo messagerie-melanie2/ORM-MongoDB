@@ -233,6 +233,10 @@ abstract class DriverMapping {
     $this->_limit = null;
     $this->_offset = null;
     $this->_unsensitiveFields = array();
+    // Réinitialisation des hasChanged
+    foreach ($this->_hasChanged as $key => $hasChanged) {
+      unset($this->_hasChanged[$key]);
+    }
   }
 
   /**
