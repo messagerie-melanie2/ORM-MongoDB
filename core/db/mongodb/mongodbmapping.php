@@ -36,6 +36,27 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
    * @var array
    */
   protected $_listFields;
+
+  /**
+   * Mapping des opérateurs
+   * @var array
+   */
+  private static $_operatorsMapping = array(
+          \ORM\Core\Mapping\Operators::eq => '$eq',
+          \ORM\Core\Mapping\Operators::and_ => '$and',
+          \ORM\Core\Mapping\Operators::or_ => '$or',
+          \ORM\Core\Mapping\Operators::gt => '$gt',
+          \ORM\Core\Mapping\Operators::gte => '$gte',
+          \ORM\Core\Mapping\Operators::in => '$in',
+          \ORM\Core\Mapping\Operators::not_in => '$nin',
+          \ORM\Core\Mapping\Operators::like => '$regex',
+          \ORM\Core\Mapping\Operators::lt => '$lt',
+          \ORM\Core\Mapping\Operators::lte => '$lte',
+          \ORM\Core\Mapping\Operators::neq => '$neq',
+          \ORM\Core\Mapping\Operators::not => '$not',
+          \ORM\Core\Mapping\Operators::nor => '$nor',
+  );
+
   /**
    * Getter pour le nom de la collection
    * @return string
@@ -95,6 +116,10 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
    * @param string clé parente
    */
   public function setMappingFields($mappingFields, $mKey = null) {
+    // Ré-init
+    $this->_fields = array();
+    $this->_hasChanged = array();
+    // Parcours les champs pour les associer aux valeurs
     foreach ($mappingFields as $key => $mappingField) {
       if (isset($mKey)) {
         $key = "$mKey.$key";
