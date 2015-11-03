@@ -58,6 +58,10 @@ class Operators {
    */
   const in = "in";
   /**
+   * Not In
+   */
+  const not_in = "nin";
+  /**
    * Or
    */
   const or_ = "or";
@@ -65,4 +69,12 @@ class Operators {
    * And
    */
   const and_ = "and";
+  /**
+   * Not
+   */
+  const not = "not";
+  /**
+   * Nor
+   */
+  const nor = "nor";
 }
