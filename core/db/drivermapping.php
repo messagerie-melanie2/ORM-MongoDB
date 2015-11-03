@@ -108,6 +108,16 @@ abstract class DriverMapping {
    * @var array
    */
   protected $_unsensitiveFields;
+  /**
+   * Est-ce que la requête de recherche doit utiliser les clés primaires
+   * @var boolean
+   */
+  protected $_usePrimaryKeys;
+  /**
+   * Liste des champs à utiliser pour la recherche (si pas de clé primaire)
+   * @var array
+   */
+  protected $_fieldsForSearch;
 
   /**
    * Récupèration de l'instance liée à une collection et un mapping
@@ -187,6 +197,11 @@ abstract class DriverMapping {
    */
   abstract function getSearchFields($usePrimaryKeys = true, $fieldsForSearch = null);
   /**
+   * Liste les champs à insérer
+   * @return array
+   */
+  abstract function getCreateFields();
+  /**
    * Liste les champs à mettre à jour
    * @return array
    */
@@ -233,6 +248,8 @@ abstract class DriverMapping {
     $this->_limit = null;
     $this->_offset = null;
     $this->_unsensitiveFields = array();
+    $this->_usePrimaryKeys = false;
+    $this->_fieldsForSearch = null;
   }
 
   /**
@@ -417,6 +434,19 @@ abstract class DriverMapping {
     }
     else {
       return $this->_unsensitiveFields;
+    }
+  }
+  /**
+   * Getter/Setter si on utiliser les clés primaires pour la recherche ou non
+   * @param boolean $usePrimaryKeys
+   * @return boolean
+   */
+  public function usePrimaryKeys($usePrimaryKeys = null) {
+    if (isset($usePrimaryKeys)) {
+      $this->_usePrimaryKeys = $usePrimaryKeys;
+    }
+    else {
+      return $this->_usePrimaryKeys;
     }
   }
 
