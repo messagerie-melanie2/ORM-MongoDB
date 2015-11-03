@@ -32,12 +32,6 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
   protected $_collectionName;
 
   /**
-   * Liste des champs à lister pour une requête de type find/findOne
-   * @var array
-   */
-  protected $_listFields;
-
-  /**
    * Mapping des opérateurs
    * @var array
    */
@@ -158,6 +152,14 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
       }
     }
     return $searchFields;
+  }
+
+  /**
+   * Liste les champs à insérer
+   * @return array
+   */
+  public function getCreateFields() {
+    return $this->getMappingFields();
   }
 
   /**
