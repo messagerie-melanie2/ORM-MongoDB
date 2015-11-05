@@ -191,11 +191,9 @@ abstract class DriverMapping {
    * Retourne la liste des champs de recherche avec les valeurs
    * TODO: Associer plus d'informations via les operations etc
    * Voir le getList de l'ORM
-   * @param boolean $usePrimaryKeys [Optionnel] Utiliser les clés primaires pour la recherche
-   * @param array $fieldsForSearch [Optionnel] Liste des champs à utiliser pour la recherche
    * @return array
    */
-  abstract function getSearchFields($usePrimaryKeys = true, $fieldsForSearch = null);
+  abstract function getSearchFields();
   /**
    * Liste les champs à insérer
    * @return array
@@ -232,6 +230,26 @@ abstract class DriverMapping {
         $this->_mapping['reverse'][$name] = $key;
       }
     }
+  }
+
+  /**
+   * Retourne le nom mappé dans la base de données
+   * @param string $name
+   * @return string
+   */
+  protected function _getMapFieldName($name) {
+    $mapName = $name;
+    if (isset($this->_mapping['fields'])
+        && isset($this->_mapping['fields'][$mapName])) {
+      if (is_array($this->_mapping['fields'][$mapName])
+          && isset($this->_mapping['fields'][$mapName]['name'])) {
+        $mapName = $this->_mapping['fields'][$mapName]['name'];
+      }
+      else {
+        $mapName = $this->_mapping['fields'][$mapName];
+      }
+    }
+    return $mapName;
   }
 
   /**
@@ -339,7 +357,8 @@ abstract class DriverMapping {
    */
   public function listFields($listFields = null) {
     if (isset($listFields)) {
-      $this->_listFields = $listFields;
+      // Mapping des noms de champs
+      $this->_listFields = array_map(array($this, '_getMapFieldName'), $listFields);
     }
     else {
       return $this->_listFields;
@@ -352,7 +371,12 @@ abstract class DriverMapping {
    */
   public function operators($operators = null) {
     if  (isset($operators)) {
-      $this->_operators = $operators;
+      $mapOperators = array();
+      foreach ($operators as $key => $value) {
+        $mapOperators[$this->_getMapFieldName($key)] = $value;
+      }
+      unset($operators);
+      $this->_operators = $mapOperators;
     }
     else {
       return $this->_operators;
@@ -365,6 +389,10 @@ abstract class DriverMapping {
    */
   public function filter($filter = null) {
     if (isset($filter)) {
+      // Mapping des noms de champs (appel recursif)
+      array_walk_recursive($filter, function ($item, $key) {
+        $item = $this->_getMapFieldName($item);
+      });
       $this->_filter = $filter;
     }
     else {
@@ -378,7 +406,13 @@ abstract class DriverMapping {
    */
   public function orderBy($orderBy = null) {
     if (isset($orderBy)) {
-      $this->_orderBy = $orderBy;
+      if (is_array($orderBy)) {
+        // Mapping des noms de champs
+        $this->_orderBy = array_map(array($this, '_getMapFieldName'), $orderBy);
+      }
+      else {
+        $this->_orderBy = $this->_getMapFieldName($orderBy);
+      }
     }
     else {
       return $this->_orderBy;
@@ -430,7 +464,8 @@ abstract class DriverMapping {
    */
   public function unsensitiveFields($unsensitiveFields = null) {
     if (isset($unsensitiveFields)) {
-      $this->_unsensitiveFields = $unsensitiveFields;
+      // Mapping des noms de champs
+      $this->_unsensitiveFields = array_map(array($this, '_getMapFieldName'), $unsensitiveFields);
     }
     else {
       return $this->_unsensitiveFields;
@@ -447,6 +482,20 @@ abstract class DriverMapping {
     }
     else {
       return $this->_usePrimaryKeys;
+    }
+  }
+  /**
+   * Getter/Setter pour la liste des champs à utiliser pour la requête de recherche
+   * @param array $fieldsForSearch
+   * @return array
+   */
+  public function fieldsForSearch($fieldsForSearch = null) {
+    if (isset($fieldsForSearch)) {
+      // Mapping des noms de champs
+      $this->_fieldsForSearch = array_map(array($this, '_getMapFieldName'), $fieldsForSearch);
+    }
+    else {
+      return $this->_fieldsForSearch;
     }
   }
 
