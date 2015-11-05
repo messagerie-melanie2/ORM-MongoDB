@@ -46,7 +46,7 @@ abstract class ObjectMapping {
    * Constructeur par défaut de l'object mapping
    * Doit être appelé par tous les objets
    */
-  public function __construct() {
+  public function __construct($driverMappingInstances = null) {
     // Récupération du type de l'objet
     $this->_objectType = str_replace('ORM\\API\\', '', get_called_class());
     // Récupération de la configuration du mapping
@@ -56,13 +56,18 @@ abstract class ObjectMapping {
     $this->_instances = array();
     $this->_driverMappingInstances = array();
 
-    // Parcours les mappings disponibles
-    foreach ($mapping as $map) {
-      if ($map['ObjectType'] == $this->_objectType) {
-        // Initialisation de l'instance
-        $instance = \ORM\Core\DB\DriverMapping::get_instance($map);
-        $this->_driverMappingInstances[$instance->instanceId()] = $instance;
-        $this->_instances[] = $instance->instanceId();
+    if (isset($driverMappingInstances)) {
+      $this->setDriverMappingInstances($driverMappingInstances);
+    }
+    else {
+      // Parcours les mappings disponibles
+      foreach ($mapping as $map) {
+        if ($map['ObjectType'] == $this->_objectType) {
+          // Initialisation de l'instance
+          $instance = \ORM\Core\DB\DriverMapping::get_instance($map);
+          $this->_driverMappingInstances[$instance->instanceId()] = $instance;
+          $this->_instances[] = $instance->instanceId();
+        }
       }
     }
 
@@ -83,6 +88,18 @@ abstract class ObjectMapping {
    */
   public function getDriverMappingInstances() {
     return $this->_driverMappingInstances;
+  }
+  /**
+   * Défini les instances de drivermapping de l'objet courant
+   * @param \ORM\Core\DB\DriverMapping[] $driverMappingInstances
+   */
+  public function setDriverMappingInstances($driverMappingInstances) {
+    $this->_driverMappingInstances = array();
+    $this->_instances = array();
+    foreach ($driverMappingInstances as $instance) {
+      $this->_instances[] = $instance->instance_id;
+      $this->_driverMappingInstances[$instance->instance_id] = $instance;
+    }
   }
 
   /**
@@ -320,11 +337,20 @@ abstract class ObjectMapping {
         else {
           $this->_driverMappingInstances[$instance_id]->isList(false);
         }
+        // Mapping des data
+        if (isset($methods_mapping['data'])) {
+          foreach ($methods_mapping['data'] as $key => $value) {
+            // Map de donnée avec le driver Mapping, via l'identifiant du tableau
+            $this->_driverMappingInstances[$instance_id]->$key($value);
+          }
+        }
         // Mapping des paramètres
         if (isset($methods_mapping['arguments'])) {
           foreach ($methods_mapping['arguments'] as $key => $argument) {
-            // Map d'argument avec le driver Mapping, via l'identifiant du tableau
-            $this->_driverMappingInstances[$instance_id]->$argument($arguments[$key]);
+            if (isset($arguments[$key])) {
+              // Map d'argument avec le driver Mapping, via l'identifiant du tableau
+              $this->_driverMappingInstances[$instance_id]->$argument($arguments[$key]);
+            }
           }
         }
         // Appel de la méthode
@@ -333,7 +359,19 @@ abstract class ObjectMapping {
         // Combinaison des résultats
         if (!isset($methods_mapping['results'])
             || !isset($methods_mapping['results']) != 'combined') {
-          $ret = $result;
+          if (isset($methods_mapping['return'])
+              && $methods_mapping['return'] == 'list') {
+            $ret = array();
+            foreach ($result as $key => $value) {
+              $class = get_called_class();
+              $object = new $class(array($value));
+              $ret[$key] = $object;
+            }
+          }
+          else {
+            $ret = $result;
+          }
+
           break;
         }
         else {
@@ -365,6 +403,15 @@ abstract class ObjectMapping {
                 }
                 break;
               case 'list':
+                if (!is_array($ret)) {
+                  $ret = array();
+                }
+                foreach ($result as $key => $value) {
+                  // Initialise les résultats
+                  $class = get_called_class();
+                  $object = new $class(array($value));
+                  $ret[$key] = $object;
+                }
                 break;
             }
           }
