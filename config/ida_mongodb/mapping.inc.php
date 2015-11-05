@@ -48,6 +48,9 @@
  *      'arguments' => array( // [Optionnel] Liste des arguments de la méthodes, l'ordre est important !
  *        <Nom du champ utilisés, actuellement : 'listFields', 'filter', 'operators', 'orderBy', 'asc', 'limit', 'offset', 'unsensitiveFields',>
  *      ),
+ *      'data' => array( // [Optionnel] Force une valeur par défaut, utilise les mêmes champs que pour 'arguments'
+ *        <Nom du champ utilisés> => <valeur par défaut>,
+ *      ),
  *    ),
  *  ),
  * )
@@ -66,7 +69,7 @@ $config['mapping'] = array(
                 'calendar' => array('name' => 'calendar', 'type' => 'string'),
                 'owner' => array('name' => 'owner', 'type' => 'string'),
                 'etag' => array('name' => 'etag', 'type' => 'string'),
-                'deleted' => array('name' => 'owner', 'type' => 'boolean', 'defaut' => false),
+                'deleted' => array('name' => 'deleted', 'type' => 'boolean', 'defaut' => false),
                 'title' => array('name' => 'vcalendar.vevent.summary', 'type' => 'string'),
                 'description' => array('name' => 'vcalendar.vevent.description', 'type' => 'string'),
                 'start' => array('name' => 'vcalendar.vevent.dtstart', 'type' => 'datetime'),
@@ -91,6 +94,10 @@ $config['mapping'] = array(
                         'operator' => 'and',
                         'var' => true,
                         'mapData' => true,
+                        'data' => array(
+                                'fieldsForSearch' => array('uid', 'calendar'),
+                                'usePrimaryKeys' => false,
+                        ),
                 ),
                 'exists' => array(
                         'name' => 'read',
@@ -98,6 +105,10 @@ $config['mapping'] = array(
                         'results' => 'combined',
                         'operator' => 'and',
                         'var' => true,
+                        'data' => array(
+                                'fieldsForSearch' => array('uid', 'calendar'),
+                                'usePrimaryKeys' => false,
+                        ),
                 ),
                 'insert' => array(
                         'name' => 'create',
@@ -110,6 +121,10 @@ $config['mapping'] = array(
                         'return' => 'boolean',
                         'results' => 'combined',
                         'operator' => 'and',
+                        'data' => array(
+                                'fieldsForSearch' => array('uid', 'calendar'),
+                                'usePrimaryKeys' => false,
+                        ),
                 ),
                 'save' => array(
                         'method' => array('exists' => array(false => 'insert', true => 'update')),
@@ -119,9 +134,13 @@ $config['mapping'] = array(
                 'delete' => array(
                         'name' => 'delete',
                         'return' => 'boolean',
-                        'results' => 'combined'
+                        'results' => 'combined',
+                        'data' => array(
+                                'fieldsForSearch' => array('uid', 'calendar'),
+                                'usePrimaryKeys' => false,
+                        ),
                 ),
-                'getList' => array(
+                'list' => array(
                         'name' => 'read',
                         'return' => 'list',
                         'results' => 'combined',
