@@ -135,23 +135,86 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
    * @param array $fieldsForSearch [Optionnel] Liste des champs à utiliser pour la recherche
    * @return array
    */
-  public function getSearchFields($usePrimaryKeys = true, $fieldsForSearch = null) {
+  public function getSearchFields() {
     $searchFields = array();
-    if (!isset($fieldsForSearch)) {
-      if (isset($this->_mapping['primaryKeys']) && $usePrimaryKeys) {
-        $fieldsForSearch = $this->_mapping['primaryKeys'];
+    if (isset($this->_filter)) {
+      // Un filtre est présent, on génére le filtre mongodb
+      $searchFields = $this->_filterToMongo($this->_filter);
+    }
+    else {
+      if (!isset($this->_fieldsForSearch)) {
+        if (isset($this->_mapping['primaryKeys']) && $this->_usePrimaryKeys) {
+          $fieldsForSearch = $this->_mapping['primaryKeys'];
+        }
+        else {
+          $fieldsForSearch = $this->_hasChanged;
+        }
       }
       else {
-        $fieldsForSearch = $this->_hasChanged;
+        $fieldsForSearch = $this->_fieldsForSearch;
       }
-    }
-    // Parcours les champs pour retourner la recherche
-    foreach ($fieldsForSearch as $key => $use) {
-      if ($use) {
-        $searchFields[$key] = $this->_fields[$key];
+      // Parcours les champs pour retourner la recherche
+      foreach ($fieldsForSearch as $key => $use) {
+        if ($use) {
+          if (isset($this->_operators[$key])) {
+            if ($this->_operators[$key] == \ORM\Core\Mapping\Operators::like) {
+              // C'est un like on utilise une regex
+              $regex = new \MongoRegex("/" . $this->_fields[$key] . "/i");
+              $searchFields[$key] = $regex;
+            }
+            else {
+              // C'est un operateur particulier
+              $searchFields[$key] = array(self::$_operatorsMapping[$this->_operators[$key]] => $this->_fields[$key]);
+            }
+          }
+          else {
+            // Recherche classique avec égal
+            $searchFields[$key] = $this->_fields[$key];
+          }
+        }
       }
     }
     return $searchFields;
+  }
+
+  /**
+   * Génère un filtre Mongo en fonction du filtre passé en tableau
+   * @param array $filters
+   * @param string $operators
+   * @return array
+   */
+  private function _filterToMongo($filters, $operators = null) {
+    $mongoDbFilter = array();
+
+    foreach ($filters as $op => $filter) {
+      if (!isset($mongoDbFilter[$op])) {
+        $mongoDbFilter[$op] = array();
+      }
+      if (is_array($filter)) {
+        // C'est un tableau, donc un nouveau filtre, on fait un appel recursif
+        $mongoDbFilter[$op][] = $this->_filterToMongo($filter, $op);
+      }
+      else {
+        // On génère le filtre
+        if (isset($this->_operators[$filter])) {
+          if ($this->_operators[$key] == \ORM\Core\Mapping\Operators::like) {
+            // C'est un like on utilise une regex
+            $regex = new \MongoRegex("/" . $this->_fields[$filter] . "/i");
+            $search .= array($filter => $regex);
+          }
+          else {
+            // C'est un operateur particulier
+            $search .= array($filter => array(self::$_operatorsMapping[$this->_operators[$filter]] => $this->_fields[$filter]));
+          }
+        }
+        else {
+          $search .= array($filter => $this->_fields[$filter]);
+        }
+        $mongoDbFilter[$op][] = $search;
+      }
+    }
+
+    return $mongoDbFilter;
   }
 
   /**

@@ -94,7 +94,7 @@ class MongoDB extends \ORM\Core\DB\Driver {
     $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
-      $ret = $collection->insert($args->getMappingFields(), $args->getOptions());
+      $ret = $collection->insert($args->getCreateFields(), $args->getOptions());
     }
     catch (\MongoCursorException  $ex) {
       \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() MongoCursorException : " . $ex->getTraceAsString());
@@ -193,7 +193,7 @@ class MongoDB extends \ORM\Core\DB\Driver {
     $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
-      $ret = $collection->update($args->getSearchFields(true), $args->getUpdateFields(), $args->getOptions());
+      $ret = $collection->update($args->getSearchFields(), $args->getUpdateFields(), $args->getOptions());
     }
     catch (\MongoCursorException  $ex) {
       \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex->getTraceAsString());
@@ -220,7 +220,7 @@ class MongoDB extends \ORM\Core\DB\Driver {
     $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
-      $ret = $collection->remove($args->getSearchFields(true), $args->getOptions());
+      $ret = $collection->remove($args->getSearchFields(), $args->getOptions());
     }
     catch (\MongoCursorException  $ex) {
       \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex->getTraceAsString());
