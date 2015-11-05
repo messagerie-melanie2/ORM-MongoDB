@@ -71,7 +71,13 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
    */
   public function getMappingFields() {
     // TODO améliorer le mapping (DateTime, serialize, ...)
-    return $this->_fields;
+    $fields = array();
+    foreach ($this->_fields as $key => $value) {
+      if (is_array($value)) {
+        $value = serialize($value);
+      }
+    }
+    return $fields;
   }
 
   /**
@@ -94,8 +100,6 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
    * Retourne la liste des champs de recherche avec les valeurs
    * TODO: Associer plus d'informations via les operations etc
    * Voir le getList de l'ORM
-   * @param boolean $usePrimaryKeys [Optionnel] Utiliser les clés primaires pour la recherche
-   * @param array $fieldsForSearch [Optionnel] Liste des champs à utiliser pour la recherche
    * @return array|string
    */
   public function getSearchFields() {
@@ -116,8 +120,11 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
           $fieldsForSearch = $this->_hasChanged;
         }
       }
+      else {
+        $fieldsForSearch = $this->_fieldsForSearch;
+      }
       // Parcours les champs pour retourner la recherche
-      foreach ($this->_fieldsForSearch as $key => $use) {
+      foreach ($fieldsForSearch as $key => $use) {
         if ($use) {
           if ($searchFields != "") {
             $searchFields = " AND ";
@@ -133,7 +140,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
         }
       }
     }
-
+    // Retourne les résultats
     return array(
             'searchFields' => $searchFields,
             'searchValues' => $searchValues,
@@ -146,7 +153,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
    * @param string $operators
    * @return array
    */
-  private function _filtersToString($filters, $operators = null) {
+  private function _filterToSql($filters, $operators = null) {
     $string = "";
     $values = array();
 
@@ -157,7 +164,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
       }
       if (is_array($filter)) {
         // C'est un tableau, donc un nouveau filtre, on fait un appel recursif
-        $result = $this->_filtersToString($filter, $op);
+        $result = $this->_filterToSql($filter, $op);
         if ($string == "") {
           $string .= $result['string'];
         }
@@ -174,6 +181,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
         else {
           $string .= "$filter = :$filter";
         }
+        $values[] = $this->_fields[$filter];
       }
     }
 
