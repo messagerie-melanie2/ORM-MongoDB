@@ -186,6 +186,7 @@ abstract class ObjectMapping {
           else {
             $class_name = 'ORM\\API\\'.$field_mapping['ObjectType'];
             $value = new $class_name();
+            $this->_driverMappingInstances[$instance_id]->$name = $value;
           }
         }
         // Si un typage est requis
