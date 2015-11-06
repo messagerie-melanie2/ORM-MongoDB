@@ -97,16 +97,16 @@ class MongoDB extends \ORM\Core\DB\Driver {
       $ret = $collection->insert($args->getCreateFields(), $args->getOptions());
     }
     catch (\MongoCursorException  $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() MongoCursorException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() MongoCursorException : " . $ex);
     }
     catch (\MongoCursorTimeoutException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() MongoCursorTimeoutException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() MongoCursorTimeoutException : " . $ex);
     }
     catch (\MongoException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() MongoException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() MongoException : " . $ex);
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->create() Exception : " . $ex);
     }
     return $ret;
   }
@@ -169,16 +169,16 @@ class MongoDB extends \ORM\Core\DB\Driver {
       }
     }
     catch (\MongoCursorException  $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->read() MongoCursorException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->read() MongoCursorException : " . $ex);
     }
     catch (\MongoCursorTimeoutException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->read() MongoCursorTimeoutException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->read() MongoCursorTimeoutException : " . $ex);
     }
     catch (\MongoException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->read() MongoException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->read() MongoException : " . $ex);
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->read() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->read() Exception : " . $ex);
     }
     return $ret;
   }
@@ -196,16 +196,16 @@ class MongoDB extends \ORM\Core\DB\Driver {
       $ret = $collection->update($args->getSearchFields(), $args->getUpdateFields(), $args->getOptions());
     }
     catch (\MongoCursorException  $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex);
     }
     catch (\MongoCursorTimeoutException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex);
     }
     catch (\MongoException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex);
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex);
     }
     return $ret;
   }
@@ -223,16 +223,16 @@ class MongoDB extends \ORM\Core\DB\Driver {
       $ret = $collection->remove($args->getSearchFields(), $args->getOptions());
     }
     catch (\MongoCursorException  $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex);
     }
     catch (\MongoCursorTimeoutException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex);
     }
     catch (\MongoException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex);
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->delete() Exception : " . $ex);
     }
     return $ret;
   }
