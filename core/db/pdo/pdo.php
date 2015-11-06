@@ -68,11 +68,11 @@ class PDO extends \ORM\Core\DB\Driver {
       $this->_pdo = new \PDO($this->config['dsn'], $username, $password, $options);
     }
     catch (\PDOException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->connect() PDOException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->connect() PDOException : " . $ex);
       return false;
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->connect() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->connect() Exception : " . $ex);
       return false;
     }
     return true;
@@ -82,7 +82,7 @@ class PDO extends \ORM\Core\DB\Driver {
    * @return boolean True si ok, false sinon
    */
   public function disconnect() {
-    $this->_pdo->disconnect();
+    //$this->_pdo->disconnect();
     return true;
   }
 
@@ -108,10 +108,10 @@ class PDO extends \ORM\Core\DB\Driver {
       $ret = $stmt->execute($insert["insertValues"]);
     }
     catch (\PDOException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->create() PDOException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->create() PDOException : " . $ex);
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->create() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->create() Exception : " . $ex);
     }
 
     return $ret;
@@ -129,11 +129,11 @@ class PDO extends \ORM\Core\DB\Driver {
     // Génération de la requête
     $query = self::SELECT;
     $search = $args->getSearchFields();
-    $where_clause = isset($search['searchFields']) ? ("WHERE ". $search['searchFields']) : "";
+    $where_clause = isset($search['searchFields']) ? (" WHERE ". $search['searchFields']) : "";
     // Remplacement des champs
     $query = str_replace("{table_name}", $args->getTableName(), $query);
     $query = str_replace("{select_fields}", $args->getSelectFields(), $query);
-    $query = str_replace("{where_clause}", $search['searchFields'], $query);
+    $query = str_replace("{where_clause}", $where_clause, $query);
     $query = str_replace("{order_by}", $args->getOrderBy(), $query);
     $query = str_replace("{limit}", $args->getLimit(), $query);
     $query = str_replace("{offset}", $args->getOffset(), $query);
@@ -154,10 +154,10 @@ class PDO extends \ORM\Core\DB\Driver {
       }
     }
     catch (\PDOException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->read() PDOException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->read() PDOException : " . $ex);
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->read() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->read() Exception : " . $ex);
     }
 
     return $ret;
@@ -189,10 +189,10 @@ class PDO extends \ORM\Core\DB\Driver {
       $ret = $pdoStatment->execute($params);
     }
     catch (\PDOException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->update() PDOException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->update() PDOException : " . $ex);
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->update() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->update() Exception : " . $ex);
     }
 
     return $ret;
@@ -222,10 +222,10 @@ class PDO extends \ORM\Core\DB\Driver {
       $ret = $pdoStatment->execute($params);
     }
     catch (\PDOException $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->delete() PDOException : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->delete() PDOException : " . $ex);
     }
     catch (\Exception $ex) {
-      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->delete() Exception : " . $ex->getTraceAsString());
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->delete() Exception : " . $ex);
     }
 
     return $ret;
