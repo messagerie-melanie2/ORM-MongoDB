@@ -62,7 +62,7 @@ $config['mapping'] = array(
      array(
         'ObjectType' => 'PHP\\Event',
         'Driver' => 'default',
-        'CollectionName' => 'event',
+        'CollectionName' => 'events',
         'primaryKeys' => array('uid' => true, 'calendar' => true),
         'fields' => array(
                 'uid' => array('name' => 'uid', 'type' => 'string'),
@@ -164,8 +164,8 @@ $config['mapping'] = array(
           'Driver' => 'default',
           'CollectionName' => 'event',
           'fields' => array(
-                  'name' => array('name' => 'name', 'type' => 'string'),
-                  'email' => array('name' => 'email', 'type' => 'string'),
+                  'name' => array('name' => 'organizer_name', 'type' => 'string'),
+                  'email' => array('name' => 'organizer_email', 'type' => 'string'),
           ),
     ),
     // Objet attendee
@@ -186,8 +186,8 @@ $config['mapping'] = array(
             'Driver' => 'default',
             'CollectionName' => 'event',
             'fields' => array(
-                    'trigger' => array('name' => 'trigger', 'type' => 'string'),
-                    'action' => array('name' => 'action', 'type' => 'string'),
+                    'trigger' => array('name' => 'valarm_trigger', 'type' => 'string'),
+                    'action' => array('name' => 'valarm_action', 'type' => 'string'),
             ),
     ),
     // Objet attachment
@@ -211,15 +211,15 @@ $config['mapping'] = array(
             'Driver' => 'default',
             'CollectionName' => 'event',
             'fields' => array(
-                    'freq' => array('name' => 'freq', 'type' => 'string'),
-                    'count' => array('name' => 'count', 'type' => 'integer'),
-                    'interval' => array('name' => 'interval', 'type' => 'integer'),
-                    'byday' => array('name' => 'byday', 'type' => 'string'),
-                    'bymonth' => array('name' => 'bymonth', 'type' => 'string'),
-                    'bymonthday' => array('name' => 'bymonthday', 'type' => 'string'),
-                    'byyearday' => array('name' => 'byyearday', 'type' => 'string'),
-                    'until' => array('name' => 'until', 'type' => 'datetime'),
-                    'wkst' => array('name' => 'wkst', 'type' => 'string'),
+                    'freq' => array('name' => 'recurrence_freq', 'type' => 'string'),
+                    'count' => array('name' => 'recurrence_count', 'type' => 'integer'),
+                    'interval' => array('name' => 'recurrence_interval', 'type' => 'integer'),
+                    'byday' => array('name' => 'recurrence_byday', 'type' => 'string'),
+                    'bymonth' => array('name' => 'recurrence_bymonth', 'type' => 'string'),
+                    'bymonthday' => array('name' => 'recurrence_bymonthday', 'type' => 'string'),
+                    'byyearday' => array('name' => 'recurrence_byyearday', 'type' => 'string'),
+                    'until' => array('name' => 'recurrence_until', 'type' => 'datetime'),
+                    'wkst' => array('name' => 'recurrence_wkst', 'type' => 'string'),
             ),
     ),
     // Objet exception

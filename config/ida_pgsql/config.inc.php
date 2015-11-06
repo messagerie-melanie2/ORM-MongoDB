@@ -24,6 +24,6 @@
 
 $config['db']['default'] = array();
 $config['db']['default']['driver'] = 'PDO';
-$config['db']['default']['dsn'] = 'pgsql://test_perf:test_perf@localhost';
-$config['db']['default']['database'] = 'tests_perfs';
+$config['db']['default']['dsn'] = 'pgsql://bench:bench@localhost';
+$config['db']['default']['database'] = 'bench';
 $config['db']['default']['options'] = array();
