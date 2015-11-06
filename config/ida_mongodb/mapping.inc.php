@@ -62,7 +62,7 @@ $config['mapping'] = array(
      array(
         'ObjectType' => 'PHP\\Event',
         'Driver' => 'default',
-        'CollectionName' => 'event',
+        'CollectionName' => 'events',
         'primaryKeys' => array('vcalendar.vevent.uid' => true, 'calendar' => true),
         'fields' => array(
                 'uid' => array('name' => 'vcalendar.vevent.uid', 'type' => 'string'),
@@ -95,7 +95,7 @@ $config['mapping'] = array(
                         'var' => true,
                         'mapData' => true,
                         'data' => array(
-                                'fieldsForSearch' => array('uid', 'calendar'),
+                                'fieldsForSearch' => array('uid' => true, 'calendar' => true),
                                 'usePrimaryKeys' => false,
                         ),
                 ),
@@ -106,7 +106,7 @@ $config['mapping'] = array(
                         'operator' => 'and',
                         'var' => true,
                         'data' => array(
-                                'fieldsForSearch' => array('uid', 'calendar'),
+                                'fieldsForSearch' => array('uid' => true, 'calendar' => true),
                                 'usePrimaryKeys' => false,
                         ),
                 ),
@@ -122,21 +122,25 @@ $config['mapping'] = array(
                         'results' => 'combined',
                         'operator' => 'and',
                         'data' => array(
-                                'fieldsForSearch' => array('uid', 'calendar'),
+                                'fieldsForSearch' => array('uid' => true, 'calendar' => true),
                                 'usePrimaryKeys' => false,
                         ),
                 ),
                 'save' => array(
                         'method' => array('exists' => array(false => 'insert', true => 'update')),
                         'return' => 'boolean',
-                        'results' => 'combined'
+                        'results' => 'combined',
+                        'data' => array(
+                                'fieldsForSearch' => array('uid' => true, 'calendar' => true),
+                                'usePrimaryKeys' => false,
+                        ),
                 ),
                 'delete' => array(
                         'name' => 'delete',
                         'return' => 'boolean',
                         'results' => 'combined',
                         'data' => array(
-                                'fieldsForSearch' => array('uid', 'calendar'),
+                                'fieldsForSearch' => array('uid' => true, 'calendar' => true),
                                 'usePrimaryKeys' => false,
                         ),
                 ),
@@ -229,7 +233,8 @@ $config['mapping'] = array(
             'CollectionName' => 'event',
             'fields' => array(
                     'uid' => array('name' => 'uid', 'type' => 'string'),
-                    'deleted' => array('name' => 'owner', 'type' => 'boolean', 'defaut' => false),
+                    'deleted' => array('name' => 'deleted', 'type' => 'boolean', 'defaut' => false),
+                    'recurrence_id' => array('name' => 'recurrence_id', 'type' => 'boolean', 'defaut' => false),
                     'title' => array('name' => 'summary', 'type' => 'string'),
                     'description' => array('name' => 'description', 'type' => 'string'),
                     'start' => array('name' => 'dtstart', 'type' => 'datetime'),
