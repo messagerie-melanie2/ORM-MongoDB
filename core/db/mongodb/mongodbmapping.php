@@ -76,15 +76,16 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
       if ($this->_isObjectType($rKey)) {
         if ($this->_isObjectList($rKey)) {
           // Génère un tableau
-          $mappingFields[$key] = array();
+          $objects = array();
           foreach ($value as $k => $v) {
             // Récupère les champs du drivermapping
-            $mappingFields[$key][$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+            $objects[$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
           }
+          $this->_mapField($key, $objects, $mappingFields);
         }
         else {
           // Récupère les champs du drivermapping
-          $mappingFields[$key] = $value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+          $this->_mapField($key, $value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields(), $mappingFields);
         }
       }
       else {
