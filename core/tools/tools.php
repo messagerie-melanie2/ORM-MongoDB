@@ -123,7 +123,6 @@ class Tools {
         }
         break;
       case 'string':
-      default:
         // Gérer la taille si besoin
         if (isset($field_mapping['size'])) {
           $value = substr($value, 0, $field_mapping['size']);
