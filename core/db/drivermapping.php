@@ -288,10 +288,9 @@ abstract class DriverMapping {
    * Permet de copier par référence les fields
    * @param string $fields
    */
-  public function &fields(&$fields = null) {
+  public function fields($fields = null) {
     if (isset($fields)) {
-      $this->_fields =& $fields;
-      return $fields;
+      $this->_fields = $fields;
     }
     else {
       return $this->_fields;
@@ -301,10 +300,9 @@ abstract class DriverMapping {
    * Permet de copier par référence le hasChanged
    * @param string $hasChanged
    */
-  public function &hasChanged(&$hasChanged = null) {
+  public function hasChanged($hasChanged = null) {
     if (isset($hasChanged)) {
-      $this->_hasChanged =& $hasChanged;
-      return $hasChanged;
+      $this->_hasChanged = $hasChanged;
     }
     else {
       return $this->_hasChanged;
@@ -492,7 +490,12 @@ abstract class DriverMapping {
   public function fieldsForSearch($fieldsForSearch = null) {
     if (isset($fieldsForSearch)) {
       // Mapping des noms de champs
-      $this->_fieldsForSearch = array_map(array($this, '_getMapFieldName'), $fieldsForSearch);
+      $mapfieldsForSearch = array();
+      foreach ($fieldsForSearch as $key => $value) {
+        $mapfieldsForSearch[$this->_getMapFieldName($key)] = $value;
+      }
+      unset($fieldsForSearch);
+      $this->_fieldsForSearch = $mapfieldsForSearch;
     }
     else {
       return $this->_fieldsForSearch;
@@ -509,8 +512,10 @@ abstract class DriverMapping {
    * @ignore
    */
   public function __set($name, $value) {
-    $this->_fields[$name] = $value;
-    $this->_hasChanged[$name] = true;
+    if (!isset($this->_fields[$name]) || $this->_fields[$name] !=  $value) {
+      $this->_fields[$name] = $value;
+      $this->_hasChanged[$name] = true;
+    }
   }
   /**
    * PHP magic to get an instance variable
@@ -610,5 +615,37 @@ abstract class DriverMapping {
     // Réinitialise les arguments
     $this->_init_arguments();
     return $result;
+  }
+
+  /**
+   * Retourne la clé inversé pour retrouver le mapping
+   * @param string $key
+   * @return string
+   */
+  protected function _getReverseKey($key) {
+    $rKey = $key;
+    if (isset($this->_mapping['reverse'][$rKey])) {
+      $rKey = $this->_mapping['reverse'][$rKey];
+    }
+    return $rKey;
+  }
+  /**
+   * Retourne si la clé est un Object Type
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isObjectType($key) {
+    return isset($this->_mapping['fields'])
+      && isset($this->_mapping['fields'][$key])
+      && isset($this->_mapping['fields'][$key]['ObjectType']);
+  }
+  /**
+   * Retourne si la clé est un type Liste d'un Object Type
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isObjectList($key) {
+    return isset($this->_mapping['fields'][$key]['type'])
+      && $this->_mapping['fields'][$key]['type'] == 'list';
   }
 }
