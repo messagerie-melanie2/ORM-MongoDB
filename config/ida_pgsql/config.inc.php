@@ -24,6 +24,7 @@
 
 $config['db']['default'] = array();
 $config['db']['default']['driver'] = 'PDO';
-$config['db']['default']['dsn'] = 'pgsql://bench:bench@localhost';
-$config['db']['default']['database'] = 'bench';
+$config['db']['default']['dsn'] = 'pgsql:dbname=bench;host=127.0.0.1';
+$config['db']['default']['username'] = 'bench';
+$config['db']['default']['password'] = 'bench';
 $config['db']['default']['options'] = array();

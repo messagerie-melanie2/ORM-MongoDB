@@ -65,7 +65,8 @@ define('ENVIRONNEMENT_LIBM2', '');
 /**
  * Chemin vers la configuration externe
  */
-define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_mongodb/');
+//define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_mongodb/');
+define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_pgsql/');
 
 /**
  * MODE_SIMPLE ou MODE_MULTIPLE pour la configuration TYPE_EXTERNAL
