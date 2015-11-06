@@ -72,7 +72,24 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
   public function getMappingFields() {
     $mappingFields = array();
     foreach ($this->_fields as $key => $value) {
-      $this->_mapField($key, $value, $mappingFields);
+      $rKey = $this->_getReverseKey($key);
+      if ($this->_isObjectType($rKey)) {
+        if ($this->_isObjectList($rKey)) {
+          // Génère un tableau
+          $mappingFields[$key] = array();
+          foreach ($value as $k => $v) {
+            // Récupère les champs du drivermapping
+            $mappingFields[$key][$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+          }
+        }
+        else {
+          // Récupère les champs du drivermapping
+          $mappingFields[$key] = $value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+        }
+      }
+      else {
+        $this->_mapField($key, $value, $mappingFields);
+      }
     }
     return $mappingFields;
   }
@@ -119,7 +136,31 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
         $key = "$mKey.$key";
       }
       if (isset($this->_mapping['reverse'][$key])) {
-        $this->_fields[$key] = $mappingField;
+        $rKey = $this->_mapping['reverse'][$key];
+        if ($this->_isObjectType($rKey)) {
+          // Nom de la classe à instancier
+          $class_name = "ORM\\API\\" . $this->_mapping['fields'][$rKey]['ObjectType'];
+          if ($this->_isObjectList($rKey)) {
+            // C'est une liste d'objets, on génère le tableau
+            $this->_fields[$key] = array();
+            foreach ($mappingField as $k => $v) {
+              // Instancie le nouvel objet et l'ajout au tableau
+              $object = new $class_name();
+              $object->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields($v);
+              $this->_fields[$key][$k] = $object;
+            }
+          }
+          else {
+            // Instancie le nouvel objet, et l'ajoute à la liste des champs
+            $object = new $class_name();
+            $object->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields($mappingField);
+            $this->_fields[$key] = $object;
+          }
+        }
+        else {
+          $this->_fields[$key] = $mappingField;
+        }
+
       }
       else if (is_array($mappingField)) {
         $this->setMappingFields($mappingField, $key);
@@ -234,7 +275,32 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
     // Parcours les champs pour retourner la recherche
     foreach ($this->_hasChanged as $key => $haschanged) {
       if ($haschanged) {
-        $this->_mapField($key, $this->_fields[$key], $updateFields);
+        //$this->_mapField($key, $this->_fields[$key], $updateFields);
+        $updateFields[$key] = $this->_fields[$key];
+      }
+    }
+    // Parcours tous les champs pour savoir si un champ complexe a été modifié
+    foreach ($this->_fields as $key => $value) {
+      // Récupération de la clé
+      $rKey = $this->_getReverseKey($key);
+      if ($this->_isObjectType($rKey)) {
+        if ($this->_isObjectList($rKey)) {
+          foreach ($value as $k => $v) {
+            $fields = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+            foreach ($v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->hasChanged() as $kk => $h) {
+              if ($h) {
+                $updateFields[$key.'.'.$k.'.'.$kk] = $fields[$kk];
+              }
+            }
+          }
+        }
+        else {
+          foreach ($value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->hasChanged() as $k => $h) {
+            if ($h) {
+              $updateFields[$key.'.'.$k] = $value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields()[$k];
+            }
+          }
+        }
       }
     }
     return array('$set' => $updateFields);
