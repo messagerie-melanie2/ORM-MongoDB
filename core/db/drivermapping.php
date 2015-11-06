@@ -228,6 +228,15 @@ abstract class DriverMapping {
           $name = $field;
         }
         $this->_mapping['reverse'][$name] = $key;
+        // Elements enfants
+        if (isset($field['elements'])) {
+          if (!is_array($field['elements'])) {
+            $field['elements'] = array($field['elements']);
+          }
+          foreach ($field['elements'] as $element) {
+            $this->_mapping['reverse'][$element] = $key;
+          }
+        }
       }
     }
   }
@@ -647,5 +656,27 @@ abstract class DriverMapping {
   protected function _isObjectList($key) {
     return isset($this->_mapping['fields'][$key]['type'])
       && $this->_mapping['fields'][$key]['type'] == 'list';
+  }
+  /**
+   * Retourne si la clé est une DateTime
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isDateTime($key) {
+    return isset($this->_mapping['fields'])
+      && isset($this->_mapping['fields'][$key])
+      && isset($this->_mapping['fields'][$key]['type'])
+      && $this->_mapping['fields'][$key]['type'] == 'datetime';
+  }
+  /**
+   * Retourne si la clé est un tableau
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isArray($key) {
+    return isset($this->_mapping['fields'])
+      && isset($this->_mapping['fields'][$key])
+      && isset($this->_mapping['fields'][$key]['type'])
+      && $this->_mapping['fields'][$key]['type'] == 'array';
   }
 }
