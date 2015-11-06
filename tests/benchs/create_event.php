@@ -54,7 +54,7 @@ if (\ORM\Tests\Lib\Random::bool()) {
 
 $event->start = \ORM\Tests\Lib\Random::Start();
 $event->end = clone $event->start;
-$event->end->add(new DateInterval("PT" . \ORM\Tests\Lib\Random::$faker->randomNumber() . "H"));
+$event->end->add(new DateInterval("PT" . \ORM\Tests\Lib\Random::$faker->randomNumber(2) . "H"));
 
 if (\ORM\Tests\Lib\Random::bool()) {
   $event->organizer->name = \ORM\Tests\Lib\Random::$faker->name;
@@ -74,7 +74,7 @@ if (\ORM\Tests\Lib\Random::bool()) {
 }
 
 if (\ORM\Tests\Lib\Random::bool()) {
-  $event->categories = array(\ORM\Tests\Lib\Random::$faker->text, \ORM\Tests\Lib\Random::$faker->text, \ORM\Tests\Lib\Random::$faker->text);
+  $event->categories = array(\ORM\Tests\Lib\Random::$faker->realText(rand(10, 15)), \ORM\Tests\Lib\Random::$faker->realText(rand(10, 15)), \ORM\Tests\Lib\Random::$faker->realText(rand(10, 15)));
 }
 
 $event->status = \ORM\Tests\Lib\Random::$faker->randomElement(array($event::STATUS_CANCELLED, $event::STATUS_CONFIRMED, $event::STATUS_NONE, $event::STATUS_TENTATIVE));
