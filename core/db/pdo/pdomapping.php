@@ -126,6 +126,12 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
             }
           }
           else {
+            if (isset($this->_mapping['fields'][$rKey])
+                && isset($this->_mapping['fields'][$rKey]['name'])
+                && $this->_mapping['fields'][$rKey]['name'] != $key) {
+              $oldKey = $key;
+              $key = $this->_mapping['fields'][$rKey]['name'];
+            }
             // Instancie le nouvel objet, et l'ajoute à la liste des champs
             if (!isset($this->_fields[$key])) {
               $object = new $class_name();
@@ -133,7 +139,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
             }
             // Ajoute la nouvelle valeur
             $fields = $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
-            $fields[$key] = $mappingField;
+            $fields[$oldKey] = $mappingField;
             $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields($fields);
           }
         }
