@@ -22,8 +22,19 @@
 namespace ORM\Core\DB\MySQL;
 
 /**
- * Driver MySQL
+ * Classe de mapping pour le driver MySQL
  */
-class MySQL extends ORM\Core\DB\PDO\PDO {
-
+class MySQLMapping extends \ORM\Core\DB\PDO\PDOMapping {
+  /**
+   * Récupère l'instruction OFFSET si besoin
+   * @return string
+   */
+  public function getOffset() {
+    $offset = "";
+    if (isset($this->_offset)
+        && isset($this->_limit)) {
+      $offset = ", " . $this->_offset;
+    }
+    return $offset;
+  }
 }
