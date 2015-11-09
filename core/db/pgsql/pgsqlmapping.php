@@ -22,8 +22,8 @@
 namespace ORM\Core\DB\PgSQL;
 
 /**
- * Driver PgSQL
+ * Classe de mapping pour le driver PgSQL
  */
-class PgSQL extends ORM\Core\DB\PDO\PDO {
+class PgSQLMapping extends \ORM\Core\DB\PDO\PDOMapping {
 
 }
