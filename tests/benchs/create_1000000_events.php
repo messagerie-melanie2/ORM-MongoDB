@@ -20,28 +20,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-set_include_path(__DIR__.'/..');
+// Inclusions
+set_include_path(__DIR__.'/../..');
 include_once 'includes/orm.php';
+include_once 'tests/ubench-1.2.0/src/Ubench.php';
 
+// Appel le namespace
 use ORM\API\PHP;
 
+// Gestion des logs
 ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
   echo "[DEBUG] $message\r\n";
 });
-
 ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
   echo "[ERROR] $message\r\n";
 });
 
-$event = new PHP\Event();
+// Gestion des benchs
+$bench = new Ubench;
+$bench->start();
+echo "Demarrage du traitement...\r\n";
+$nb_events = 100000;
+/****** TRAITEMENT ICI *******/
 
-$event->calendar = 'thomas.test19';
-$event->uid = '563cd1625affc6a8e35f8f220cca288eddd1a0ed8c738@TestORM';
 
-echo "#####RESULT####\r\n";
-var_export($event->load());
+
+
+/****** FIN du TRAITEMENT ICI ***/
+echo "Creation de $nb_events events terminee";
+$bench->end();
+
+echo "#####RESULTS####\r\n";
+// Get elapsed time and memory
+echo $bench->getTime(); // 156ms or 1.123s
 echo "\r\n";
-var_export($event->attendees[2]->email);
+
+echo $bench->getMemoryPeak(); // 152B or 90.00Kb or 15.23Mb
 echo "\r\n";
-// var_export($event->exists());
-// echo "\r\n\r\n";
+
+var_export(sys_getloadavg());
+echo "\r\n";
+
+// Returns the memory usage at the end mark
+echo $bench->getMemoryUsage(); // 152B or 90.00Kb or 15.23Mb
+echo "\r\n\r\n";
