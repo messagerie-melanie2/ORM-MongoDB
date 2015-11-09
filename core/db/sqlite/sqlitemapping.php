@@ -22,8 +22,8 @@
 namespace ORM\Core\DB\SQLite;
 
 /**
- * Driver SQLite
+ * Classe de mapping pour le driver SQLite
  */
-class SQLite extends ORM\Core\DB\PDO\PDO {
+class SQLiteMapping extends \ORM\Core\DB\PDO\PDOMapping {
 
 }
