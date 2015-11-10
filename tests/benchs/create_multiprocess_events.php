@@ -25,29 +25,39 @@ set_include_path(__DIR__.'/../..');
 include_once 'includes/orm.php';
 include_once 'tests/ubench-1.2.0/src/Ubench.php';
 
-// Appel le namespace
-use ORM\API\PHP;
-
-// Gestion des logs
-ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
-  echo "[DEBUG] $message\r\n";
-});
-ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
-  echo "[ERROR] $message\r\n";
-});
-
 // Gestion des benchs
 $bench = new Ubench;
 $bench->start();
-echo "Demarrage du traitement...\r\n";
+
 $nb_events = 100000;
+//$nb_threads = 4;
+//$nb_threads = 10;
+$nb_threads = 100;
+
 /****** TRAITEMENT ICI *******/
+$events_by_thread = $nb_events / $nb_threads;
 
+for ($i = 0; $i < $nb_threads; $i++) {
+  $pid = pcntl_fork();
 
+  if (!$pid) {
+    sleep(1);
+    print "Creation du process $i\n";
+    $start_events = $i * $events_by_thread;
+    $stop_events = $start_events + $events_by_thread;
 
+    for ($j = $start_events; $j < $stop_events; $j++) {
+      \ORM\Tests\Lib\Crud::CreateLightRandomEvent($j, $nb_events);
+    }
+    exit($i);
+  }
+}
 
+while (pcntl_waitpid(0, $status) != -1) {
+  $status = pcntl_wexitstatus($status);
+  echo "Fin du process $status\n";
+}
 /****** FIN du TRAITEMENT ICI ***/
-echo "Creation de $nb_events events terminee";
 $bench->end();
 
 echo "#####RESULTS####\r\n";

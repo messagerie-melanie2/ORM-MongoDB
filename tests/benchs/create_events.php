@@ -20,30 +20,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-set_include_path(__DIR__.'/..');
+// Inclusions
+set_include_path(__DIR__.'/../..');
 include_once 'includes/orm.php';
 
-use ORM\API\PHP;
+$max_events = $argv[1];
+$start_events = $argv[2];
+$stop_events = $argv[3];
 
-ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
-  echo "[DEBUG] $message\r\n";
-});
+include_once 'tests/ubench-1.2.0/src/Ubench.php';
 
-ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
-  echo "[ERROR] $message\r\n";
-});
+// Gestion des benchs
+$bench = new Ubench;
+$bench->start();
 
-$event = new PHP\Event();
+for ($i = $start_events; $i < $stop_events; $i ++) {
+  \ORM\Tests\Lib\Crud::CreateLightRandomEvent($i, $max_events);
+}
 
-$event->calendar = 'william.test27312';
-$event->uid = '5641c0eedea387234229a4519f1b92c71b39829cd620f@TestORM';
+/****** FIN du TRAITEMENT ICI ***/
+$bench->end();
 
-echo "#####RESULT####\r\n";
-var_export($event->load());
+echo "#####RESULTS####\r\n";
+// Get elapsed time and memory
+echo $bench->getTime(); // 156ms or 1.123s
 echo "\r\n";
-$event->recurrence->freq = PHP\Recurrence::FREQ_DAILY;
-$event->recurrence->until = new \DateTime("@".time());
-var_export($event->save());
+
+echo $bench->getMemoryPeak(); // 152B or 90.00Kb or 15.23Mb
 echo "\r\n";
-// var_export($event->exists());
-// echo "\r\n\r\n";
+
+var_export(sys_getloadavg());
+echo "\r\n";
+
+// Returns the memory usage at the end mark
+echo $bench->getMemoryUsage(); // 152B or 90.00Kb or 15.23Mb
+echo "\r\n\r\n";
