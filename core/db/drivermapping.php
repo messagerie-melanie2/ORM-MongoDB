@@ -597,7 +597,7 @@ abstract class DriverMapping {
     }
     elseif (isset($methods_mapping['mapData'])
         && $methods_mapping['mapData']) {
-      if (isset($result)) {
+      if (isset($result) && $result) {
         $this->setMappingFields($result);
       }
     }
