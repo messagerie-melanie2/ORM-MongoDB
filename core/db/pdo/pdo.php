@@ -176,7 +176,7 @@ class PDO extends \ORM\Core\DB\Driver {
     $query = self::UPDATE;
     $update = $args->getUpdateFields();
     $search = $args->getSearchFields();
-    $where_clause = isset($search['searchFields']) ? ("WHERE ". $search['searchFields']) : "";
+    $where_clause = isset($search['searchFields']) ? (" WHERE ". $search['searchFields']) : "";
     $params = isset($search['searchValues']) ? array_merge($update['updateValues'], $search['searchValues']) : $update['updateValues'];
     // Remplacement des champs
     $query = str_replace("{table_name}", $args->getTableName(), $query);

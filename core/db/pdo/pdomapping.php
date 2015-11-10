@@ -79,13 +79,13 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
           $objects = array();
           foreach ($value as $k => $v) {
             // Récupère les champs du drivermapping
-            $objects[$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+            $objects[$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->getMappingFields();
           }
           // Ajoute le tableau serializé
           $mappingFields[$key] = serialize($objects);
         }
         else {
-          $fields = $value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+          $fields = $value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->getMappingFields();
           $mappingFields = array_merge($mappingFields, $fields);
         }
       }
@@ -94,7 +94,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
       }
 
     }
-    return $fields;
+    return $mappingFields;
   }
 
   /**
@@ -107,49 +107,51 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
     // Ré-init
     $this->_fields = array();
     $this->_hasChanged = array();
-    foreach ($mappingFields as $key => $mappingField) {
-      if (isset($this->_mapping['reverse'][$key])) {
-        $rKey = $this->_mapping['reverse'][$key];
-        if ($this->_isObjectType($rKey)
-            && !empty($mappingField)) {
-          // Nom de la classe à instancier
-          $class_name = "ORM\\API\\" . $this->_mapping['fields'][$rKey]['ObjectType'];
-          if ($this->_isObjectList($rKey)) {
-            $mappingField = unserialize($mappingField);
-            // C'est une liste d'objets, on génère le tableau
-            $this->_fields[$key] = array();
-            foreach ($mappingField as $k => $v) {
-              // Instancie le nouvel objet et l'ajout au tableau
-              $object = new $class_name();
-              $object->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields($v);
-              $this->_fields[$key][$k] = $object;
+    if (is_array($mappingFields)) {
+      foreach ($mappingFields as $key => $mappingField) {
+        if (isset($this->_mapping['reverse'][$key])) {
+          $rKey = $this->_mapping['reverse'][$key];
+          if ($this->_isObjectType($rKey)
+              && !empty($mappingField)) {
+            // Nom de la classe à instancier
+            $class_name = "ORM\\API\\" . $this->_mapping['fields'][$rKey]['ObjectType'];
+            if ($this->_isObjectList($rKey)) {
+              $mappingField = unserialize($mappingField);
+              // C'est une liste d'objets, on génère le tableau
+              $this->_fields[$key] = array();
+              foreach ($mappingField as $k => $v) {
+                // Instancie le nouvel objet et l'ajout au tableau
+                $object = new $class_name();
+                $object->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->setMappingFields($v);
+                $this->_fields[$key][$k] = $object;
+              }
+            }
+            else {
+              if (isset($this->_mapping['fields'][$rKey])
+                  && isset($this->_mapping['fields'][$rKey]['name'])
+                  && $this->_mapping['fields'][$rKey]['name'] != $key) {
+                $oldKey = $key;
+                $key = $this->_mapping['fields'][$rKey]['name'];
+              }
+              // Instancie le nouvel objet, et l'ajoute à la liste des champs
+              if (!isset($this->_fields[$key])) {
+                $object = new $class_name();
+                $this->_fields[$key] = $object;
+              }
+              // Ajoute la nouvelle valeur
+              $fields = $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+              $fields[$oldKey] = $mappingField;
+              $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->setMappingFields($fields);
             }
           }
           else {
-            if (isset($this->_mapping['fields'][$rKey])
-                && isset($this->_mapping['fields'][$rKey]['name'])
-                && $this->_mapping['fields'][$rKey]['name'] != $key) {
-              $oldKey = $key;
-              $key = $this->_mapping['fields'][$rKey]['name'];
-            }
-            // Instancie le nouvel objet, et l'ajoute à la liste des champs
-            if (!isset($this->_fields[$key])) {
-              $object = new $class_name();
-              $this->_fields[$key] = $object;
-            }
-            // Ajoute la nouvelle valeur
-            $fields = $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
-            $fields[$oldKey] = $mappingField;
-            $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields($fields);
+            $this->_fields[$key] = $this->_convertFromSql($mappingField, $key);
           }
+
         }
         else {
           $this->_fields[$key] = $this->_convertFromSql($mappingField, $key);
         }
-
-      }
-      else {
-        $this->_fields[$key] = $this->_convertFromSql($mappingField, $key);
       }
     }
   }
@@ -263,7 +265,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
             $objects = array();
             foreach ($this->_fields[$key] as $k => $v) {
               // Récupère les champs du drivermapping
-              $objects[$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+              $objects[$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->getMappingFields();
             }
             if ($insertRequest != "") {
               $insertRequest .= ", ";
@@ -275,7 +277,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
             $insertValues[$key] = serialize($objects);
           }
           else {
-            $fields = $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+            $fields = $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->getMappingFields();
             foreach ($fields as $k => $v) {
               if ($insertRequest != "") {
                 $insertRequest .= ", ";
@@ -316,10 +318,14 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
     // Parcours les champs pour retourner la recherche
     foreach ($this->_hasChanged as $key => $haschanged) {
       if ($haschanged) {
+        $rKey = $this->_getReverseKey($key);
+        if ($this->_isObjectType($rKey)) {
+          continue;
+        }
         if ($updateFields != "") {
           $updateFields .= ", ";
         }
-        $updateFields .= ":$key";
+        $updateFields .= "$key = :$key";
         $updateValues[$key] = $this->_fields[$key];
       }
     }
@@ -328,12 +334,13 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
       // Récupération de la clé
       $rKey = $this->_getReverseKey($key);
       if ($this->_isObjectType($rKey)) {
-        if ($this->_isObjectList($rKey)) {
+        if ($this->_isObjectList($rKey)
+            && is_array($value)) {
           $objectHasChanged = false;
           $objects = array();
           foreach ($value as $k => $v) {
             // Récupère les champs
-            $objects[$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields();
+            $objects[$k] = $v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->getMappingFields();
             foreach ($v->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->hasChanged() as $kk => $h) {
               if ($h) {
                 // L'objet à changé il faudra le mettre à jour
@@ -346,19 +353,20 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
             if ($updateFields != "") {
               $updateFields .= ", ";
             }
-            $updateFields .= ":$key";
+            $updateFields .= "$key = :$key";
             $updateValues[$key] = serialize($objects);
           }
         }
-        else {
+        elseif ($value instanceof \ORM\Core\Mapping\ObjectMapping) {
+          $fields = $value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->getMappingFields();
           foreach ($value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->hasChanged() as $k => $h) {
             if ($h) {
               if ($updateFields != "") {
                 $updateFields .= ", ";
               }
-              $updateFields .= ":$key";
+              $updateFields .= "$k = :$k";
               // Mise à jour du champ lié à l'objet
-              $updateValues[$k] = $value->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->fields()[$k];
+              $updateValues[$k] = $fields[$k];
             }
           }
         }
