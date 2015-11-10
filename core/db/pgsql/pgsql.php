@@ -24,6 +24,6 @@ namespace ORM\Core\DB\PgSQL;
 /**
  * Driver PgSQL
  */
-class PgSQL extends ORM\Core\DB\PDO\PDO {
+class PgSQL extends \ORM\Core\DB\PDO\PDO {
 
 }

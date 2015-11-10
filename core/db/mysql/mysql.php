@@ -24,6 +24,6 @@ namespace ORM\Core\DB\MySQL;
 /**
  * Driver MySQL
  */
-class MySQL extends ORM\Core\DB\PDO\PDO {
+class MySQL extends \ORM\Core\DB\PDO\PDO {
 
 }

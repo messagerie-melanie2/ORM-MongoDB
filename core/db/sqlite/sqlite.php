@@ -24,6 +24,6 @@ namespace ORM\Core\DB\SQLite;
 /**
  * Driver SQLite
  */
-class SQLite extends ORM\Core\DB\PDO\PDO {
+class SQLite extends \ORM\Core\DB\PDO\PDO {
 
 }

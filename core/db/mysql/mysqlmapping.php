@@ -37,4 +37,41 @@ class MySQLMapping extends \ORM\Core\DB\PDO\PDOMapping {
     }
     return $offset;
   }
+
+  /**
+   * Conversion d'une valeur de l'ORM en SQL
+   * @param mixed $value
+   * @param string $mappingKey
+   * @return string
+   */
+  protected function _convertToSql($value, $mappingKey) {
+    if (is_array($value)) {
+      $convertedValue = serialize($value);
+    }
+    else if ($this->_isDateTime($mappingKey)) {
+      $convertedValue = $value->format('Y-m-d H:i:s');
+    }
+    else {
+      $convertedValue = $value;
+    }
+    return $convertedValue;
+  }
+  /**
+   * Conversion d'une valeur SQL en valeur de l'ORM
+   * @param string $value
+   * @param string $mappingKey
+   * @return mixed
+   */
+  protected function _convertFromSql($value, $mappingKey) {
+    if ($this->_isArray($mappingKey)) {
+      $convertedValue = unserialize($value);
+    }
+    else if ($this->_isDateTime($mappingKey)) {
+      $convertedValue = new \DateTime($value);
+    }
+    else {
+      $convertedValue = $value;
+    }
+    return $convertedValue;
+  }
 }
