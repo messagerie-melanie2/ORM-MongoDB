@@ -19,12 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/****** DATABASE CNX ********/
-
-$config['db']['default'] = array();
-$config['db']['default']['driver'] = 'PgSQL';
-$config['db']['default']['dsn'] = 'pgsql:dbname=bench;host=127.0.0.1';
-$config['db']['default']['username'] = 'bench';
-$config['db']['default']['password'] = 'bench';
-$config['db']['default']['options'] = array();
+/* Chargement de la configuration pour l'application */
+include_once(__DIR__ . '/config.inc.php');
+include_once(__DIR__ . '/mapping.inc.php');

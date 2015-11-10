@@ -1,15 +1,15 @@
 CREATE TABLE events (
-	uid VARCHAR(255),
-	calendar VARCHAR(255),
+	uid VARCHAR(255) NOT NULL,
+	calendar VARCHAR(255) NOT NULL,
 	owner VARCHAR(255),
 	etag VARCHAR(255),
 	deleted boolean,
 	summary text,
 	description text,
-	dtstart timestamp with time zone,
-	dtend timestamp with time zone,
-	created int,
-	modified int,
+	dtstart datetime,
+	dtend datetime,
+	created datetime,
+	modified datetime,
 	class varchar(120),
 	status varchar(120),
 	categories text,
@@ -25,9 +25,9 @@ CREATE TABLE events (
 	recurrence_bymonth varchar(120),
 	recurrence_bymonthday varchar(120),
 	recurrence_byyearday varchar(120),
-	recurrence_until timestamp with time zone,
+	recurrence_until datetime,
 	recurrence_wkst varchar(120),
 	attachments text,
 	exceptions text,
-	CONSTRAINT events_calendar_uid PRIMARY KEY(calendar, uid)
+	PRIMARY KEY(uid, calendar)
 );
