@@ -24,6 +24,7 @@ set_include_path(__DIR__.'/..');
 include_once 'includes/orm.php';
 
 use ORM\API\PHP;
+use ORM\Core\Mapping\Operators;
 
 ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
   echo "[DEBUG] $message\r\n";
@@ -34,16 +35,42 @@ ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
 });
 
 $event = new PHP\Event();
+$timezone = new DateTimeZone("Europe/Paris");
 
-$event->calendar = 'william.test27312';
-$event->uid = '5641c0eedea387234229a4519f1b92c71b39829cd620f@TestORM';
+// $event->calendar = 'william.test27312';
+// $event->uid = '5641c0eedea387234229a4519f1b92c71b39829cd620f@TestORM';
+// $timezone = new DateTimeZone("Europe/Paris");
+
+// $event->end = new DateTime("2015-10-29 18:00:00", $timezone);
+// $event->start = new DateTime("2015-10-30 14:00:00", $timezone);
+
+// echo "\r\n";
+// $event->recurrence->freq = PHP\Recurrence::FREQ_DAILY;
+// $event->recurrence->until = new DateTime("2015-12-30 00:00:00", $timezone);
+// var_export($event->save());
+// echo "\r\n";
+
+// );
+$filter = array(
+    Operators::and_ => array(
+        'calendar' => array(Operators::eq => 'aurelien.test4'),
+        Operators::or_ => array(
+            Operators::and_ => array(
+                'start' => array(Operators::gt => new DateTime("2015-10-01 00:00:00", $timezone)),
+                'end' => array(Operators::lt => new DateTime("2015-12-31 00:00:00", $timezone))
+            ),
+            'recurrence.freq' => array(Operators::eq => null),
+        ),
+    ),
+);
+
+$events = $event->list(null, $filter);
+//var_export($events);
+foreach ($events as $e) {
+  echo $e->title . " / " . $e->start->format("Y-m-d H:i:s") . " / " . $e->end->format("Y-m-d H:i:s") . "\n";
+}
 
 echo "#####RESULT####\r\n";
-var_export($event->load());
-echo "\r\n";
-$event->recurrence->freq = PHP\Recurrence::FREQ_DAILY;
-$event->recurrence->until = new \DateTime("@".time());
-var_export($event->save());
-echo "\r\n";
+//var_export($event->load());
 // var_export($event->exists());
 // echo "\r\n\r\n";
