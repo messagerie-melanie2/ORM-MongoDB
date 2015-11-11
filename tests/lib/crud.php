@@ -256,7 +256,7 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       $nb_users = $max / 1000;
     }
     
-    $val = $num % $nb_users;
+    $val = $num % $nb_users + $num;
     $time = 1446332400 + (($num % 84500) * 60 * 60) + $val;
     
     $event->uid = uniqid() . md5(time()) . $num . $val . "@TestORM";
