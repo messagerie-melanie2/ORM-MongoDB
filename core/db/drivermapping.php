@@ -209,6 +209,20 @@ abstract class DriverMapping {
    * @return array
    */
   abstract function getOptions();
+  /**
+   * Récupération de la valeur d'un champ converti au format de la base de données
+   * @param string $key Clé du champ
+   * @param string $rKey [Optionnel] Clé reverse
+   * @return mixed
+   */
+  abstract function getField($key, $rKey = null);
+  /**
+   * Assigne la valeur d'un champ converti depuis la base de données
+   * @param string $key Clé du champ
+   * @param mixed $value Valeur à convertir
+   * @param string $rKey [Optionnel] Clé reverse
+   */
+  abstract function setField($key, $value, $rKey = null);
 
   /**
    * Inverse le mapping de la configuration
