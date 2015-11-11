@@ -270,8 +270,11 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
     if ($val % 2 === 0) {
       $event->description = self::$descriptions[$val % count(self::$descriptions)];
     }
-    $event->start = new \DateTime("@$time");
-    $event->end = new \DateTime("@" . ($time + 3600 * ($val % 5)));
+    $timezone = new \DateTimeZone("Europe/Paris");
+    $event->start = new \DateTime("@$time", $timezone);
+    $event->start->setTimezone($timezone);
+    $event->end = new \DateTime("@" . ($time + 3600 * ($val % 5)), $timezone);
+    $event->end->setTimezone($timezone);
     
     if ($val % 4 === 0) {
       $event->organizer->name = self::$names[$val % count(self::$names)];
