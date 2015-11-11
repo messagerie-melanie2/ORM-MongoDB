@@ -96,6 +96,16 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
         }
       } else {
         $mappingFields[$key] = $this->_convertToSql($value, $this->_getReverseKey($key));
+        if (is_array($mappingFields[$key])) {
+          if (isset($mappingFields[$key]['date'])) {
+            if (isset($mappingFields[$key]['tz'])) {
+              $mappingFields[$key . "_tz"] = $mappingFields[$key]['tz'];
+            }
+            $mappingFields[$key] = $mappingFields[$key]['date'];
+          } else {
+            $mappingFields[$key] = serialize($mappingFields[$key]);
+          }
+        }
       }
     }
     return $mappingFields;
@@ -117,7 +127,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
       foreach ($mappingFields as $key => $mappingField) {
         if (isset($this->_mapping['reverse'][$key])) {
           $rKey = $this->_mapping['reverse'][$key];
-          if ($this->_isObjectType($rKey) && !empty($mappingField)) {
+          if ($this->_isObjectType($rKey) && ! empty($mappingField)) {
             // Nom de la classe à instancier
             $class_name = "ORM\\API\\" . $this->_mapping['fields'][$rKey]['ObjectType'];
             if ($this->_isObjectList($rKey)) {
@@ -167,7 +177,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
     $searchValues = array();
     
     if (isset($this->_filter)) {
-      $result = $this->_filtersToString($this->_filter);
+      $result = $this->_filterToSql($this->_filter);
       $searchFields = $result['string'];
       $searchValues = $result['values'];
     } else {
@@ -192,6 +202,13 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
             $searchFields .= "$key = :$key";
           }
           $searchValues[$key] = $this->getField($key);
+          if (is_array($searchValues[$key])) {
+            if (isset($searchValues[$key]['date'])) {
+              $searchValues[$key] = $searchValues[$key]['date'];
+            } else {
+              $searchValues[$key] = serialize($searchValues[$key]);
+            }
+          }
         }
       }
     }
@@ -212,30 +229,64 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
   private function _filterToSql($filters, $operators = null) {
     $string = "";
     $values = array();
+    $par = false;
+    
+    if (count($filters) > 1) {
+    	$string = "(";
+    	$par = true;
+    }
     
     foreach ($filters as $op => $filter) {
       // Ajoute l'operateur de transition
-      if ($string != "") {
-        $string .= " " . self::$_operatorsMapping[$operator] . " ";
+      if ($string != "" && $string != "(") {
+        $string .= " " . self::$_operatorsMapping[$operators] . " ";
       }
-      if (is_array($filter)) {
+      if (is_array($filter) && isset(self::$_operatorsMapping[$op])) {
         // C'est un tableau, donc un nouveau filtre, on fait un appel recursif
         $result = $this->_filterToSql($filter, $op);
-        if ($string == "") {
-          $string .= $result['string'];
-        } else {
-          $string .= " (" . $result['string'] . ")";
-        }
+        $string .= $result['string'];
         $values = array_merge($values, $result['values']);
+      } else if (is_array($filter)) {
+      	// La valeur et l'opérateur sont présent dans le filtre
+      	reset($filter);
+      	$_op = key($filter);
+      	$key = $op;
+      	if (strpos($key, '.') !== false) {
+      		$key = str_replace('.', '_', $key);
+      	}
+      	$searchKey = $this->_getMapFieldName($key);
+      	$value = $this->_convertToSql($filter[$_op]);
+      	if (isset($value['date'])) {
+      	  $value = $value['date'];
+      	}
+      	$string .= "$searchKey " . self::$_operatorsMapping[$_op] . " :$searchKey";
+      	$values[$searchKey] = $value;
       } else {
+      	$key = $filter;
+      	if (strpos($key, '.') !== false) {
+      	  $key = str_replace('.', '_', $key);
+      	}
+      	$key = $this->_getMapFieldName($key);
         // On génère le filtre
-        if (isset($this->_operators[$filter])) {
-          $string .= "$filter " . self::$_operatorsMapping[$this->_operators[$filter]] . " :$filter";
+        if (isset($this->_operators[$key])) {
+          $string .= "$key " . self::$_operatorsMapping[$this->_operators[$filter]] . " :$key";
         } else {
-          $string .= "$filter = :$filter";
+          $string .= "$key = :$key";
         }
-        $values[] = $this->getField($filter);
+        $value = $this->getField($key);
+        if (is_array($value)) {
+          if (isset($value['date'])) {
+            $value = $value['date'];
+          } else {
+            $value = serialize($value);
+          }
+        }
+        $values[$key] = $value;
       }
+    }
+    
+    if ($par) {
+    	$string .= ")";
     }
     
     return array(
@@ -295,6 +346,22 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
           $insertRequest .= ":$key";
           // Récupère la valeur converti en SQL
           $insertValues[$key] = $this->getField($key);
+          if (is_array($insertValues[$key])) {
+            if (isset($insertValues[$key]['date'])) {
+              if (isset($insertValues[$key]['tz'])) {
+                $insertValues[$key . "_tz"] = $insertValues[$key]['tz'];
+                if ($insertRequest != "") {
+                  $insertRequest .= ", ";
+                  $insertFields .= ", ";
+                }
+                $insertFields .= $key . "_tz";
+                $insertRequest .= ":" . $key . "_tz";
+              }
+              $insertValues[$key] = $insertValues[$key]['date'];
+            } else {
+              $insertValues[$key] = serialize($insertValues[$key]);
+            }
+          }
         }
       }
     }
@@ -317,14 +384,27 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
     foreach ($this->_hasChanged as $key => $haschanged) {
       if ($haschanged) {
         $rKey = $this->_getReverseKey($key);
-        if ($this->_isObjectType($rKey)) {
-          continue;
+        if (! $this->_isObjectType($rKey)) {
+          if ($updateFields != "") {
+            $updateFields .= ", ";
+          }
+          $updateFields .= "$key = :$key";
+          $updateValues[$key] = $this->getField($key);
+          if (is_array($updateValues[$key])) {
+            if (isset($updateValues[$key]['date'])) {
+              if (isset($updateValues[$key]['tz'])) {
+                $updateValues[$key . "_tz"] = $updateValues[$key]['tz'];
+                if ($updateFields != "") {
+                  $updateFields .= ", ";
+                }
+                $updateFields .= $key . "_tz = :" . $key . "_tz";
+              }
+              $updateValues[$key] = $updateValues[$key]['date'];
+            } else {
+              $updateValues[$key] = serialize($updateValues[$key]);
+            }
+          }
         }
-        if ($updateFields != "") {
-          $updateFields .= ", ";
-        }
-        $updateFields .= "$key = :$key";
-        $updateValues[$key] = $this->getField($key);
       }
     }
     // Parcours tous les champs pour savoir si un champ complexe a été modifié
@@ -440,24 +520,32 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
   public function getOptions() {
     return array();
   }
-  
+
   /**
    * Récupération de la valeur d'un champ converti au format de la base de données
-   * @param string $key Clé du champ
-   * @param string $rKey [Optionnel] Clé reverse
+   *
+   * @param string $key
+   *          Clé du champ
+   * @param string $rKey
+   *          [Optionnel] Clé reverse
    * @return mixed
    */
   public function getField($key, $rKey = null) {
-    return $this->_convertToSql($this->_fields[$key], isset($rKey) ?: $this->_getReverseKey($key));
+    return $this->_convertToSql($this->_fields[$key], isset($rKey) ?  : $this->_getReverseKey($key));
   }
+
   /**
    * Assigne la valeur d'un champ converti depuis la base de données
-   * @param string $key Clé du champ
-   * @param mixed $value Valeur à convertir
-   * @param string $rKey [Optionnel] Clé reverse
+   *
+   * @param string $key
+   *          Clé du champ
+   * @param mixed $value
+   *          Valeur à convertir
+   * @param string $rKey
+   *          [Optionnel] Clé reverse
    */
   public function setField($key, $value, $rKey = null) {
-    $this->_fields[$key] = $this->_convertFromSql($value, isset($rKey) ?: $this->_getReverseKey($key));
+    $this->_fields[$key] = $this->_convertFromSql($value, isset($rKey) ?  : $this->_getReverseKey($key));
   }
 
   /**
@@ -476,10 +564,10 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
    * @param string $mappingKey          
    * @return string
    */
-  protected function _convertToSql($value, $mappingKey) {
+  protected function _convertToSql($value, $mappingKey = null) {
     if (is_array($value)) {
       $convertedValue = serialize($value);
-    } else if ($this->_isDateTime($mappingKey)) {
+    } else if (isset($mappingKey) && $this->_isDateTime($mappingKey) || $value instanceof \DateTime) {
       $convertedValue = $value->format('r');
     } else {
       $convertedValue = $value;
