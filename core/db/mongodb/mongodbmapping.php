@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ce fichier est développé pour la gestion de la librairie ORM
  * Cette Librairie permet d'accèder aux données sans avoir à implémenter de couche SQL
@@ -201,20 +202,26 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
       // Parcours les champs pour retourner la recherche
       foreach ($fieldsForSearch as $key => $use) {
         if ($use) {
-          if (isset($this->_operators[$key])) {
+          $value = $this->getField($key);
+          $searchKey = $key;
+          if (isset($value['date'])) {
+            $value = $value['date'];
+            $searchKey .= ".date";
+          }
+          if (isset($this->_operators[$key]) && $this->_operators[$key] != \ORM\Core\Mapping\Operators::eq) {
             if ($this->_operators[$key] == \ORM\Core\Mapping\Operators::like) {
               // C'est un like on utilise une regex
-              $regex = new \MongoRegex("/" . $this->getField($key) . "/i");
-              $searchFields[$key] = $regex;
+              $regex = new \MongoRegex("/" . $value . "/i");
+              $searchFields[$searchKey] = $regex;
             } else {
               // C'est un operateur particulier
-              $searchFields[$key] = array(
-                  self::$_operatorsMapping[$this->_operators[$key]] => $this->getField($key) 
+              $searchFields[$searchKey] = array(
+                  self::$_operatorsMapping[$this->_operators[$key]] => $value 
               );
             }
           } else {
             // Recherche classique avec égal
-            $searchFields[$key] = $this->getField($key);
+            $searchFields[$searchKey] = $value;
           }
         }
       }
@@ -233,38 +240,114 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
     $mongoDbFilter = array();
     
     foreach ($filters as $op => $filter) {
-      if (! isset($mongoDbFilter[$op])) {
-        $mongoDbFilter[$op] = array();
-      }
-      if (is_array($filter)) {
+      if (is_array($filter) && isset(self::$_operatorsMapping[$op])) {
         // C'est un tableau, donc un nouveau filtre, on fait un appel recursif
-        $mongoDbFilter[$op][] = $this->_filterToMongo($filter, $op);
+        if (! isset($operators)) {
+          $mongoDbFilter[self::$_operatorsMapping[$op]] = $this->_filterToMongo($filter, $op);
+        } else {
+          $mongoDbFilter[] = array(
+              self::$_operatorsMapping[$op] => $this->_filterToMongo($filter, $op) 
+          );
+        }
+      } else if (is_array($filter)) {
+        // La valeur et l'opérateur sont présent dans le filtre
+        reset($filter);
+        $_op = key($filter);
+        $key = $op;
+        if (strpos($key, '.') !== false) {
+          $_f = explode('.', $key, 2);
+          $searchKey = $this->_getMapFieldName($_f[0]) . '.' . $_f[1];
+        } else {
+          $searchKey = $this->_getMapFieldName($key);
+        }
+        $value = $this->_convertToMongo($filter[$_op]);
+        if (isset($value['date'])) {
+          $value = $value['date'];
+          $searchKey .= ".date";
+        }
+        if ($_op == \ORM\Core\Mapping\Operators::like) {
+          // C'est un like on utilise une regex
+          $regex = new \MongoRegex("/" . $value . "/i");
+          $mongoDbFilter[] = array(
+              $searchKey => $regex 
+          );
+        } else if ($_op == \ORM\Core\Mapping\Operators::neq && ! isset($value)) {
+          // C'est un operateur particulier
+          $mongoDbFilter[] = array(
+              $searchKey => array(
+                  '$exists' => true 
+              ) 
+          );
+        } else if ($_op == \ORM\Core\Mapping\Operators::eq && ! isset($value)) {
+          // C'est un operateur particulier
+          $mongoDbFilter[] = array(
+              $searchKey => array(
+                  '$exists' => false 
+              ) 
+          );
+        } else {
+          // C'est un operateur particulier
+          $mongoDbFilter[] = array(
+              $searchKey => array(
+                  self::$_operatorsMapping[$_op] => $value 
+              ) 
+          );
+        }
       } else {
+        // C'est une valeur unique, on la récupère depuis fields
+        if (strpos($filter, '.') !== false) {
+          $_f = explode('.', $filter, 2);
+          $key = $this->_getMapFieldName($_f[0]);
+          $value = $this->_fields[$key]->getDriverMappingInstanceByDriver($this->_mapping['Driver'])->getField($_f[1]);
+          $searchKey = $this->_getMapFieldName($_f[0]) . '.' . $_f[1];
+          $key = $filter;
+        } else {
+          $key = $this->_getMapFieldName($filter);
+          $value = $this->getField($key, $filter);
+          $searchKey = $key;
+        }
+        if (isset($value['date'])) {
+          $value = $value['date'];
+          $searchKey .= ".date";
+        }
         // On génère le filtre
-        if (isset($this->_operators[$filter])) {
+        if (isset($this->_operators[$key])) {
           if ($this->_operators[$key] == \ORM\Core\Mapping\Operators::like) {
             // C'est un like on utilise une regex
-            $regex = new \MongoRegex("/" . $this->getField($filter)  . "/i");
-            $search .= array(
-                $filter => $regex 
+            $regex = new \MongoRegex("/" . $value . "/i");
+            $mongoDbFilter[] = array(
+                $searchKey => $regex 
+            );
+          } else if ($this->_operators[$key] == \ORM\Core\Mapping\Operators::neq && ! isset($value)) {
+            // C'est un operateur particulier
+            $mongoDbFilter[] = array(
+                $searchKey => array(
+                    '$exists' => true 
+                ) 
+            );
+          } else if ($this->_operators[$key] == \ORM\Core\Mapping\Operators::eq && ! isset($value)) {
+            // C'est un operateur particulier
+            $mongoDbFilter[] = array(
+                $searchKey => array(
+                    '$exists' => false 
+                ) 
             );
           } else {
             // C'est un operateur particulier
-            $search .= array(
-                $filter => array(
-                    self::$_operatorsMapping[$this->_operators[$filter]] => $this->getField($filter)  
+            $mongoDbFilter[] = array(
+                $searchKey => array(
+                    self::$_operatorsMapping[$this->_operators[$key]] => $value 
                 ) 
             );
           }
         } else {
-          $search .= array(
-              $filter => $this->getField($filter) 
+          $mongoDbFilter[] = array(
+              $searchKey => $value 
           );
         }
-        $mongoDbFilter[$op][] = $search;
+      
       }
     }
-    
     return $mongoDbFilter;
   }
 
@@ -287,8 +370,12 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
     // Parcours les champs pour retourner la recherche
     foreach ($this->_hasChanged as $key => $haschanged) {
       if ($haschanged) {
-        // $this->_mapField($key, $this->_fields[$key], $updateFields);
-        $updateFields[$key] = $this->getField($key);
+        // Récupération de la clé
+        $rKey = $this->_getReverseKey($key);
+        if (! $this->_isObjectType($rKey)) {
+          // $this->_mapField($key, $this->_fields[$key], $updateFields);
+          $updateFields[$key] = $this->getField($key);
+        }
       }
     }
     // Parcours tous les champs pour savoir si un champ complexe a été modifié
@@ -320,24 +407,32 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
   public function getOptions() {
     return array();
   }
-  
+
   /**
    * Récupération de la valeur d'un champ converti au format de la base de données
-   * @param string $key Clé du champ
-   * @param string $rKey [Optionnel] Clé reverse
+   *
+   * @param string $key
+   *          Clé du champ
+   * @param string $rKey
+   *          [Optionnel] Clé reverse
    * @return mixed
    */
   public function getField($key, $rKey = null) {
-    return $this->_convertToMongo($this->_fields[$key], isset($rKey) ?: $this->_getReverseKey($key));
+    return $this->_convertToMongo($this->_fields[$key], isset($rKey) ? $rKey : $this->_getReverseKey($key));
   }
+
   /**
    * Assigne la valeur d'un champ converti depuis la base de données
-   * @param string $key Clé du champ
-   * @param mixed $value Valeur à convertir
-   * @param string $rKey [Optionnel] Clé reverse
+   *
+   * @param string $key
+   *          Clé du champ
+   * @param mixed $value
+   *          Valeur à convertir
+   * @param string $rKey
+   *          [Optionnel] Clé reverse
    */
   public function setField($key, $value, $rKey = null) {
-    $this->_fields[$key] = $this->_convertFromMongo($value, isset($rKey) ?: $this->_getReverseKey($key));
+    $this->_fields[$key] = $this->_convertFromMongo($value, isset($rKey) ? $rKey : $this->_getReverseKey($key));
   }
 
   /**
@@ -356,8 +451,8 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
    * @param string $mappingKey          
    * @return string
    */
-  protected function _convertToMongo($value, $mappingKey) {
-    if ($this->_isDateTime($mappingKey)) {
+  protected function _convertToMongo($value, $mappingKey = null) {
+    if (isset($mappingKey) && $this->_isDateTime($mappingKey) || $value instanceof \DateTime) {
       $convertedValue = array();
       // Conversion des dates en GMT
       $convertedValue['tz'] = $value->getTimezone()->getName();
