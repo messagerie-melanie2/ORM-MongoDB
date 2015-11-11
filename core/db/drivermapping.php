@@ -261,7 +261,10 @@ abstract class DriverMapping {
    * @return string
    */
   protected function _getMapFieldName($name) {
-    $mapName = $name;
+  	if (!is_string($name)) {
+  	 return $name;  
+  	}
+  	$mapName = $name;
     if (isset($this->_mapping['fields'])
         && isset($this->_mapping['fields'][$mapName])) {
       if (is_array($this->_mapping['fields'][$mapName])
@@ -337,7 +340,7 @@ abstract class DriverMapping {
    * @param array $mapping
    * @return array
    */
-  public function mapping($mapping = null) {
+  public function &mapping($mapping = null) {
     if (isset($mapping)) {
       $this->_mapping = $mapping;
     }
