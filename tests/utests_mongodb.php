@@ -24,6 +24,7 @@ set_include_path(__DIR__.'/..');
 include_once 'includes/orm.php';
 
 use ORM\API\PHP;
+use ORM\Core\Mapping\Operators;
 
 ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
   echo "[DEBUG] $message\r\n";
@@ -35,25 +36,54 @@ ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
 
 $event = new PHP\Event();
 
-$event->calendar = 'thomas.test1';
-$events = $event->list();
-$events[0]->attendees[1]->name = 'TEST5 Thomas - SG/SPSSI/CPII/PNE Annuaire et Messagerie';
-$events[0]->title = "Test événement 2 [Update2 13:52]";
-$events[0]->organizer->email = "thomas.test1@i-carre.net";
-$events[0]->save();
-var_export($events[0]->attendees[1]->name);
-echo "\r\n\r\n";
+$timezone = new DateTimeZone("GMT");
+
+// $event->calendar = 'thomas.test1';
+// $event->end = new DateTime("2015-10-29 00:00:00", $timezone);
+// $event->start = new DateTime("2015-10-30 00:00:00", $timezone);
+// $event->recurrence->until = new DateTime("2015-11-30 00:00:00", $timezone);
+
+// $operators = array(
+// 		'calendar' => Operators::eq,
+// 		'start' => Operators::lt,
+// 		'end' => Operators::gt,
+// 		'recurrence.until' => Operators::gt,
+// );
+$filter = array(
+  Operators::and_ => array(
+  		'calendar' => array(Operators::eq => 'thomas.test1'),
+  		Operators::or_ => array(
+  				Operators::and_ => array(
+  						'start' => array(Operators::gt => new DateTime("2015-10-29 00:00:00", $timezone)), 
+  				        'end' => array(Operators::lt => new DateTime("2015-10-30 00:00:00", $timezone))
+  				),
+  				'recurrence.freq' => array(Operators::neq => null),
+  		),
+  ),
+);
+
+$events = $event->list(null, $filter);
+//var_export($events);
+foreach ($events as $e) {
+	echo $e->title . " / " . $e->start->format("Y-m-d H:i:s") . " / " . $e->end->format("Y-m-d H:i:s") . "\n";
+}
+// $events[0]->attendees[1]->name = 'TEST5 Thomas - SG/SPSSI/CPII/PNE Annuaire et Messagerie';
+// $events[0]->title = "Test événement 2 [Update2 13:52]";
+// $events[0]->organizer->email = "thomas.test1@i-carre.net";
+// $events[0]->save();
+// var_export($events[0]->attendees[1]->name);
+// echo "\r\n\r\n";
 
 // $event->uid = uniqid().md5(time())."@TestORM";
-// $event->uid = "5630e20ca5a44e40717ade13e2eb4e00f19076e4c4802@TestORM";
+// $event->uid = "56434dfeecfe679bba0e2619a9043c26a4a7d1f0bf36f@TestORM";
 // $event->calendar = "thomas.test1";
 // $event->title = "Test événement 2 [Update]";
 // $event->description = "Ceci est un test pour validation";
 
 // $timezone = new DateTimeZone("Europe/Paris");
-// $event->start = new DateTime("2015-10-28 17:00:00", $timezone);
+// $event->start = new DateTime("2015-10-30 17:00:00", $timezone);
 
-// $event->end = new DateTime("2015-10-28 18:00:00", $timezone);
+// $event->end = new DateTime("2015-10-30 18:00:00", $timezone);
 
 // $event->organizer->name = 'TEST1 Thomas';
 // $event->organizer->email = 'thomas.test1@developpement-durable.gouv.fr';
@@ -87,7 +117,7 @@ echo "\r\n\r\n";
 // $event->attachments = array($attachment);
 
 // $event->recurrence->freq = PHP\Recurrence::FREQ_MONTHLY;
-// $event->recurrence->count = 5;
+// $event->recurrence->until = new DateTime("2015-12-28 17:00:00", $timezone);
 
 // //var_export($event);
 // echo "\r\n";
