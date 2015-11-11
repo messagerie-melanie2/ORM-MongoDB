@@ -51,13 +51,13 @@ $timezone = new DateTimeZone("GMT");
 // );
 $filter = array(
   Operators::and_ => array(
-  		'calendar' => array(Operators::eq => 'thomas.test1'),
+  		'calendar' => array(Operators::eq => 'aurelien.test4'),
   		Operators::or_ => array(
   				Operators::and_ => array(
-  						'start' => array(Operators::gt => new DateTime("2015-10-29 00:00:00", $timezone)), 
-  				        'end' => array(Operators::lt => new DateTime("2015-10-30 00:00:00", $timezone))
+  						'start' => array(Operators::gt => new DateTime("2015-10-01 00:00:00", $timezone)), 
+  				        'end' => array(Operators::lt => new DateTime("2015-12-31 00:00:00", $timezone))
   				),
-  				'recurrence.freq' => array(Operators::neq => null),
+  				'recurrence.freq' => array(Operators::eq => null),
   		),
   ),
 );
