@@ -24,9 +24,12 @@
 set_include_path(__DIR__.'/../..');
 include_once 'includes/orm.php';
 
-$max_events = $argv[1];
-$start_events = $argv[2];
-$stop_events = $argv[3];
+// $max_events = $argv[1];
+// $start_events = $argv[2];
+// $stop_events = $argv[3];
+$max_events = 1000;
+$start_events = 0;
+$stop_events = 1000;
 
 include_once 'tests/ubench-1.2.0/src/Ubench.php';
 
