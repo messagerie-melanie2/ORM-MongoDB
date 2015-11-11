@@ -24,7 +24,7 @@
 
 $config['db']['default'] = array();
 $config['db']['default']['driver'] = 'MySQL';
-$config['db']['default']['dsn'] = 'mysql:dbname=bench;host=localhost';
+$config['db']['default']['dsn'] = 'mysql:dbname=bench;host=127.0.0.1';
 $config['db']['default']['username'] = 'bench';
 $config['db']['default']['password'] = 'bench';
 $config['db']['default']['options'] = array();
