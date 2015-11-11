@@ -193,7 +193,7 @@ class MongoDB extends \ORM\Core\DB\Driver {
     $ret = null;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
-      $ret = $collection->update($args->getSearchFields(), $args->getUpdateFields(), $args->getOptions());
+      $ret = $collection->update($args->getSearchFields(), array('$set' => $args->getUpdateFields()), $args->getOptions());
     }
     catch (\MongoCursorException  $ex) {
       \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:MongoDB]->update() Exception : " . $ex);
