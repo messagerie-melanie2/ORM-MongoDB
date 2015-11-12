@@ -29,10 +29,11 @@ include_once 'tests/ubench-1.2.0/src/Ubench.php';
 $bench = new Ubench;
 $bench->start();
 
-$nb_events = 100000;
+//$nb_events = 100000;
+$nb_events = 1000000;
 //$nb_threads = 4;
 $nb_threads = 10;
-//$nb_threads = 100;
+//$nb_threads = 25;
 
 /****** TRAITEMENT ICI *******/
 $events_by_thread = $nb_events / $nb_threads;
@@ -41,13 +42,14 @@ for ($i = 0; $i < $nb_threads; $i++) {
   $pid = pcntl_fork();
 
   if (!$pid) {
-    sleep(1);
+    usleep(1000);
     print "Creation du process $i\n";
     $start_events = $i * $events_by_thread;
     $stop_events = $start_events + $events_by_thread;
 
     for ($j = $start_events; $j < $stop_events; $j++) {
       \ORM\Tests\Lib\Crud::CreateLightRandomEvent($j, $nb_events);
+      usleep(10000);
     }
     exit($i);
   }
