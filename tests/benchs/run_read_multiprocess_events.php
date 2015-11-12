@@ -28,6 +28,9 @@ include_once 'tests/ubench-1.2.0/src/Ubench.php';
 ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
   error_log("[Debug] $message", 3, "/var/tmp/orm_run_process.log");
 });
+ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
+  error_log("[Error] $message", 0, "/var/tmp/orm_run_process_error.log");
+});
 
 // Gestion des benchs
 $bench = new Ubench;
