@@ -24,15 +24,16 @@ namespace ORM\Tests\Lib;
 
 // Appel le namespace
 use ORM\API\PHP;
+use ORM\Core\Mapping\Operators;
 
 /**
  * Génération de données aléatoire
  *
  * @author thomas
- *        
+ *
  */
 class Crud {
-  
+
   private static $users = array(
       "bob.test",
       "dylan.test",
@@ -65,9 +66,9 @@ class Crud {
       "tom.test",
       "thomas.test",
       "david.test",
-      "marc.test" 
+      "marc.test"
   );
-  
+
   private static $titles = array(
       "Cubillas de Cerrato",
       "Mary Kom (film)",
@@ -94,9 +95,9 @@ class Crud {
       "Jan Balabán, né le 29 janvier 1961 à Šumperk et mort le 23 avril 2010 à Ostrava, est un écrivain, journaliste et traducteur tchèque.",
       "Scleromochlus est un reptile du Trias.",
       "Porte de Montmartre",
-      "Raúl Troncoso" 
+      "Raúl Troncoso"
   );
-  
+
   private static $descriptions = array(
       "Cubillas de Cerrato est une commune espagnole de la province de Palencia, dans la communauté autonome de Castille-et-León.",
       "Mary Kom est un film biographique indien réalisé par Omung Kumar, sorti en 2014. Il relate la vie de la championne de boxe indienne Mary Kom, interprétée par Priyanka Chopra.",
@@ -191,9 +192,9 @@ La porte de Montmartre est une petite porte de Paris située à 500 m à l'ouest
       "Raúl Troncoso Castillo (né le 27 avril 1935 à Santiago du Chili et décédé le 28 novembre 2004 (à 69 ans) dans la même ville), est un homme politique chilien. Ambassadeur en Italie de 1990 à 1992. Ministre de la Défense en 1998. Ministre de l'Intérieur de 1998 au 11 mars 2000.",
       "Le Prix des Drags est une course hippique de Steeple-chase se déroulant au mois de juin sur l'hippodrome d'Auteuil.
 
-C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se court sur 4 400 mètres. L'allocation pour l'année 2007 est de 240 000 €." 
+C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se court sur 4 400 mètres. L'allocation pour l'année 2007 est de 240 000 €."
   );
-  
+
   private static $names = array(
       "Moriz Rosenthal",
       "Francesco Orsi",
@@ -213,9 +214,9 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       "Bowman Creek",
       "Nelle Morton",
       "Mary Jane Kelly",
-      "Tokugawa Yoshinobu" 
+      "Tokugawa Yoshinobu"
   );
-  
+
   private static $emails = array(
       "Moriz.Rosenthal@romania.us",
       "Francesco.Orsi@fr.wikipedia.org",
@@ -235,19 +236,28 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       "Bowman.Creek@facebook.com",
       "Nelle.Morton@fr.wikipedia.org",
       "Mary.Jane.Kelly@twitter.fr",
-      "Tokugawa.Yoshinobu@fr.wikipedia.org" 
+      "Tokugawa.Yoshinobu@fr.wikipedia.org"
   );
 
   /**
    * Création d'un event dans la base de données
    * Utilise quelques données aléatoire plus être le plus rapide possible
-   * 
+   *
    * @return multitype:\ORM\API\PHP\Event boolean
+   */
+
+  /**
+   * Création d'un event dans la base de données
+   * Utilise quelques données aléatoire plus être le plus rapide possible
+   *
+   * @param int $num Numéro d'itération courant (sert pour la génération des données)
+   * @param int $max Numéro max d'itération (sert pour la génération des données)
+   * @return mixed
    */
   public static function CreateLightRandomEvent($num, $max) {
     // Génération de l'objet
     $event = new PHP\Event();
-    
+
     if ($max < 10000) {
       $nb_users = $max / 10;
     } else if ($max < 100000) {
@@ -255,18 +265,18 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
     } else {
       $nb_users = $max / 1000;
     }
-    
+
     $val = $num % $nb_users + $num;
     $time = 1446332400 + (($num % 84500) * 60 * 60) + $val;
-    
+
     $event->uid = uniqid() . md5(time()) . $num . $val . "@TestORM";
     $event->calendar = self::$users[$val % count(self::$users)] . $val % 10;
     $event->owner = self::$users[$val % count(self::$users)] . $val % 10;
     $event->title = self::$titles[$val % count(self::$titles)];
-    
+
     $event->created = time();
     $event->modified = time();
-    
+
     if ($val % 2 === 0) {
       $event->description = self::$descriptions[$val % count(self::$descriptions)];
     }
@@ -275,11 +285,11 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
     $event->start->setTimezone($timezone);
     $event->end = new \DateTime("@" . ($time + 3600 * ($val % 5)), $timezone);
     $event->end->setTimezone($timezone);
-    
+
     if ($val % 4 === 0) {
       $event->organizer->name = self::$names[$val % count(self::$names)];
       $event->organizer->email = self::$emails[$val % count(self::$emails)];
-      
+
       $nbatt = $val % 5;
       $attendees = array();
       for ($i = 0; $i < $nbatt; $i++) {
@@ -292,14 +302,14 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       }
       $event->attendees = $attendees;
     }
-    
+
     if ($val % 5 === 0) {
       $event->categories = array(
           "test1$val",
-          "test2$val" 
+          "test2$val"
       );
     }
-    
+
     if ($val % 6 === 0) {
       $event->status = $event::STATUS_TENTATIVE;
       $event->class = $event::CLASS_PRIVATE;
@@ -307,13 +317,13 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       $event->status = $event::STATUS_CONFIRMED;
       $event->class = $event::CLASS_PUBLIC;
     }
-    
+
     if ($val % 10 === 0) {
       $attachment = new PHP\Attachment();
       $attachment->type = $attachment::TYPE_URL;
       $attachment->data = "https://www.example$val.com/";
       $event->attachments = array(
-          $attachment 
+          $attachment
       );
     } elseif ($val % 11 === 0) {
       $attachment1 = new PHP\Attachment();
@@ -324,10 +334,10 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       $attachment2->data = "https://www.othersite$val.com/";
       $event->attachments = array(
           $attachment1,
-          $attachment2 
+          $attachment2
       );
     }
-    
+
     if ($val % 9 === 0) {
       switch ($val % 5) {
         case 0 :
@@ -354,13 +364,216 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
           $event->recurrence->until = new \DateTime("@" . ($time + 3600 * 24 * 7 * 4));
           break;
       }
-    
+
     }
     $result = $event->insert();
     return array(
         'result' => $result,
-        'event' => $event 
+        'event' => $event
     );
+  }
+  /**
+   * Lecture d'une liste d'événements dans la base de données
+   * Utilise quelques données aléatoire plus être le plus rapide possible
+   *
+   * @param int $num Numéro d'itération courant (sert pour la génération des données)
+   * @param int $max Numéro max d'itération (sert pour la génération des données)
+   * @return PHP\Event[]
+   */
+  public static function ReadRandomEvents($num, $max) {
+    // Génération de l'objet
+    $event = new PHP\Event();
+
+    if ($max < 10000) {
+      $nb_users = $max / 10;
+    } else if ($max < 100000) {
+      $nb_users = $max / 100;
+    } else {
+      $nb_users = $max / 1000;
+    }
+
+    $val = $num % $nb_users + $num;
+    $time = 1446332400 + (($num % 84500) * 60 * 60) + $val;
+
+    if ($val % 7 === 0) {
+      $event->calendar = self::$users[$val % count(self::$users)] . $val % 10;
+      $events = $event->list();
+    } else if ($val % 6 === 0) {
+      $calendar = self::$users[$val % count(self::$users)] . $val % 10;
+      $timezone = new \DateTimeZone("Europe/Paris");
+      $start = new \DateTime("@$time", $timezone);
+      $start->setTimezone($timezone);
+      $end = new \DateTime("@" . ($time + 3600 * 24 * 30), $timezone);
+      $end->setTimezone($timezone);
+
+      $filter = array(
+              Operators::and_ => array(
+                      'calendar' => array(Operators::eq => $calendar),
+                      Operators::or_ => array(
+                              Operators::and_ => array(
+                                      'start' => array(Operators::gt => $start),
+                                      'end' => array(Operators::lt => $end)
+                              ),
+                              Operators::and_ => array(
+                                      'recurrence.freq' => array(Operators::neq => null),
+                                      'recurrence.until' => array(Operators::gt => $start)
+                              ),
+                      ),
+              ),
+      );
+      $events = $event->list(null, $filter);
+    } else if ($val % 5 === 0) {
+      $calendar = self::$users[$val % count(self::$users)] . $val % 10;
+      $timezone = new \DateTimeZone("Europe/Paris");
+      $start = new \DateTime("@$time", $timezone);
+      $start->setTimezone($timezone);
+      $end = new \DateTime("@" . ($time + 3600 * 24), $timezone);
+      $end->setTimezone($timezone);
+
+      $filter = array(
+              Operators::and_ => array(
+                      'calendar' => array(Operators::eq => $calendar),
+                      Operators::or_ => array(
+                              Operators::and_ => array(
+                                      'start' => array(Operators::gt => $start),
+                                      'end' => array(Operators::lt => $end)
+                              ),
+                              Operators::and_ => array(
+                                      'recurrence.freq' => array(Operators::neq => null),
+                                      'recurrence.until' => array(Operators::gt => $start)
+                              ),
+                      ),
+              ),
+      );
+      $events = $event->list(null, $filter);
+    } else {
+      $calendar = self::$users[$val % count(self::$users)] . $val % 10;
+      $timezone = new \DateTimeZone("Europe/Paris");
+      $start = new \DateTime("@$time", $timezone);
+      $start->setTimezone($timezone);
+      $end = new \DateTime("@" . ($time + 3600 * 24 * 7), $timezone);
+      $end->setTimezone($timezone);
+
+      $filter = array(
+              Operators::and_ => array(
+                      'calendar' => array(Operators::eq => $calendar),
+                      Operators::or_ => array(
+                              Operators::and_ => array(
+                                      'start' => array(Operators::gt => $start),
+                                      'end' => array(Operators::lt => $end)
+                              ),
+                              Operators::and_ => array(
+                                      'recurrence.freq' => array(Operators::neq => null),
+                                      'recurrence.until' => array(Operators::gt => $start)
+                              ),
+                      ),
+              ),
+      );
+      $events = $event->list(null, $filter);
+    }
+    return $events;
+  }
+  /**
+   * Création d'un event dans la base de données
+   * Utilise quelques données aléatoire plus être le plus rapide possible
+   *
+   * @param int $num Numéro d'itération courant (sert pour la génération des données)
+   * @param int $max Numéro max d'itération (sert pour la génération des données)
+   * @param string $uid UID de l'événement à modified
+   * @param string $calendar Identifiant du calendrier de l'événement à modifier
+   * @return boolean
+   */
+  public static function UpdateRandomEvent($num, $max, $uid, $calendar) {
+    // Génération de l'objet
+    $event = new PHP\Event();
+    $event->uid = $uid;
+    $event->calendar = $calendar;
+    if ($event->load()) {
+      if ($max < 10000) {
+        $nb_users = $max / 10;
+      } else if ($max < 100000) {
+        $nb_users = $max / 100;
+      } else {
+        $nb_users = $max / 1000;
+      }
+
+      $val = $num % $nb_users + $num;
+      $time = 1446332400 + (($num % 84500) * 60 * 60) + $val;
+
+      if ($val % 7 === 0) {
+        $timezone = new \DateTimeZone("Europe/Paris");
+        $event->start = new \DateTime("@$time", $timezone);
+        $event->start->setTimezone($timezone);
+        $event->end = new \DateTime("@" . ($time + 3600 * ($val % 5)), $timezone);
+        $event->end->setTimezone($timezone);
+
+      } else if ($val % 6 === 0) {
+        switch ($val % 5) {
+          case 0 :
+            $event->recurrence->freq = PHP\Recurrence::FREQ_MONTHLY;
+            $event->recurrence->count = 5;
+            break;
+          case 1 :
+            $event->recurrence->freq = PHP\Recurrence::FREQ_DAILY;
+            $event->recurrence->interval = 2;
+            $event->recurrence->until = new \DateTime("@" . ($time + 3600 * 24 * 7));
+            break;
+          case 2 :
+            $event->recurrence->freq = PHP\Recurrence::FREQ_WEEKLY;
+            $event->recurrence->byday = PHP\Recurrence::DAY_MONDAY . ',' . PHP\Recurrence::DAY_TUESDAY;
+            $event->recurrence->until = new \DateTime("@" . ($time + 3600 * 24 * 7 * 30));
+            break;
+          case 3 :
+            $event->recurrence->freq = PHP\Recurrence::FREQ_YEARLY;
+            $event->recurrence->until = new \DateTime("@" . ($time + 3600 * 24 * 7 * 52 * 10));
+            break;
+          case 4 :
+            $event->recurrence->freq = PHP\Recurrence::FREQ_WEEKLY;
+            $event->recurrence->interval = 2;
+            $event->recurrence->until = new \DateTime("@" . ($time + 3600 * 24 * 7 * 4));
+            break;
+        }
+      } else if ($val % 5 === 0) {
+        $nbatt = $val % 5;
+        $attendees = array();
+        for ($i = 0; $i < $nbatt; $i++) {
+          $attendee = new PHP\Attendee();
+          $attendee->name = self::$names[($val + $i * $nbatt) % count(self::$names)];
+          $attendee->email = self::$emails[($val + $i * $nbatt) % count(self::$emails)];
+          $attendee->response = $attendee::RESPONSE_ACCEPTED;
+          $attendee->role = $attendee::ROLE_REQ_PARTICIPANT;
+          $attendees[] = $attendee;
+        }
+        $event->attendees = $attendees;
+
+      } else {
+        $event->title = self::$titles[$val % count(self::$titles)];
+        $event->description = self::$descriptions[($val+1) % count(self::$descriptions)];
+      }
+
+      return $event->update();
+    }
+    else {
+      return false;
+    }
+  }
+  /**
+   * Suppression d'un événement dans la base de données (pas d'aléatoire)
+   * @param string $uid UID de l'événement à modified
+   * @param string $calendar Identifiant du calendrier de l'événement à modifier
+   * @return boolean
+   */
+  public static function DeleteEvent($uid, $calendar) {
+    // Génération de l'objet
+    $event = new PHP\Event();
+    $event->uid = $uid;
+    $event->calendar = $calendar;
+    if ($event->load()) {
+      return $event->delete();
+    }
+    else {
+      return false;
+    }
   }
 }
 
