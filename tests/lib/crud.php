@@ -395,28 +395,30 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
     $val = $num % $nb_users + $num;
     $time = 1446332400 + (($num % 84500) * 60 * 60) + $val;
 
-    if ($val % 7 === 0) {
-      $event->calendar = self::$users[$val % count(self::$users)] . $val % 10;
-      $events = $event->list();
-    } else if ($val % 6 === 0) {
+    if ($val % 6 === 0) {
       $calendar = self::$users[$val % count(self::$users)] . $val % 10;
       $timezone = new \DateTimeZone("Europe/Paris");
       $start = new \DateTime("@$time", $timezone);
       $start->setTimezone($timezone);
-      $end = new \DateTime("@" . ($time + 3600 * 24 * 30), $timezone);
+      $end = new \DateTime("@" . ($time + (3600*24*30)), $timezone);
       $end->setTimezone($timezone);
 
       $filter = array(
-              Operators::and_ => array(
+              Operators::and_0 => array(
                       'calendar' => array(Operators::eq => $calendar),
-                      Operators::or_ => array(
-                              Operators::and_ => array(
-                                      'start' => array(Operators::gt => $start),
-                                      'end' => array(Operators::lt => $end)
+                      Operators::or_0 => array(
+                              Operators::and_0 => array(
+                                      'start_0' => array(Operators::gt => $start),
+                                      'start_1' => array(Operators::lt => $end),
                               ),
-                              Operators::and_ => array(
+                              Operators::and_1 => array(
+                                      'end_0' => array(Operators::gt => $start),
+                                      'end_1' => array(Operators::lt => $end),
+                              ),
+                              Operators::and_2 => array(
                                       'recurrence.freq' => array(Operators::neq => null),
-                                      'recurrence.until' => array(Operators::gt => $start)
+                                      'recurrence.until' => array(Operators::gt => $start),
+                                      'end_2' => array(Operators::lt => $end),
                               ),
                       ),
               ),
@@ -427,20 +429,25 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       $timezone = new \DateTimeZone("Europe/Paris");
       $start = new \DateTime("@$time", $timezone);
       $start->setTimezone($timezone);
-      $end = new \DateTime("@" . ($time + 3600 * 24), $timezone);
+      $end = new \DateTime("@" . ($time + (3600*24)), $timezone);
       $end->setTimezone($timezone);
 
       $filter = array(
-              Operators::and_ => array(
+              Operators::and_0 => array(
                       'calendar' => array(Operators::eq => $calendar),
-                      Operators::or_ => array(
-                              Operators::and_ => array(
-                                      'start' => array(Operators::gt => $start),
-                                      'end' => array(Operators::lt => $end)
+                      Operators::or_0 => array(
+                              Operators::and_0 => array(
+                                      'start_0' => array(Operators::gt => $start),
+                                      'start_1' => array(Operators::lt => $end),
                               ),
-                              Operators::and_ => array(
+                              Operators::and_1 => array(
+                                      'end_0' => array(Operators::gt => $start),
+                                      'end_1' => array(Operators::lt => $end),
+                              ),
+                              Operators::and_2 => array(
                                       'recurrence.freq' => array(Operators::neq => null),
-                                      'recurrence.until' => array(Operators::gt => $start)
+                                      'recurrence.until' => array(Operators::gt => $start),
+                                      'end_2' => array(Operators::lt => $end),
                               ),
                       ),
               ),
@@ -451,20 +458,25 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       $timezone = new \DateTimeZone("Europe/Paris");
       $start = new \DateTime("@$time", $timezone);
       $start->setTimezone($timezone);
-      $end = new \DateTime("@" . ($time + 3600 * 24 * 7), $timezone);
+      $end = new \DateTime("@" . ($time + (3600*24*7)), $timezone);
       $end->setTimezone($timezone);
 
       $filter = array(
-              Operators::and_ => array(
+              Operators::and_0 => array(
                       'calendar' => array(Operators::eq => $calendar),
-                      Operators::or_ => array(
-                              Operators::and_ => array(
-                                      'start' => array(Operators::gt => $start),
-                                      'end' => array(Operators::lt => $end)
+                      Operators::or_0 => array(
+                              Operators::and_0 => array(
+                                      'start_0' => array(Operators::gt => $start),
+                                      'start_1' => array(Operators::lt => $end),
                               ),
-                              Operators::and_ => array(
+                              Operators::and_1 => array(
+                                      'end_0' => array(Operators::gt => $start),
+                                      'end_1' => array(Operators::lt => $end),
+                              ),
+                              Operators::and_2 => array(
                                       'recurrence.freq' => array(Operators::neq => null),
-                                      'recurrence.until' => array(Operators::gt => $start)
+                                      'recurrence.until' => array(Operators::gt => $start),
+                                      'end_2' => array(Operators::lt => $end),
                               ),
                       ),
               ),
