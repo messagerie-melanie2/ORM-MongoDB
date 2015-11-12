@@ -64,11 +64,29 @@ class Operators {
   /**
    * Or
    */
-  const or_ = "or";
+  const or_0 = "or0";
+  const or_1 = "or1";
+  const or_2 = "or2";
+  const or_3 = "or3";
+  const or_4 = "or4";
+  const or_5 = "or5";
+  const or_6 = "or6";
+  const or_7 = "or7";
+  const or_8 = "or8";
+  const or_9 = "or9";
   /**
    * And
    */
-  const and_ = "and";
+  const and_0 = "and0";
+  const and_1 = "and1";
+  const and_2 = "and2";
+  const and_3 = "and3";
+  const and_4 = "and4";
+  const and_5 = "and5";
+  const and_6 = "and6";
+  const and_7 = "and7";
+  const and_8 = "and8";
+  const and_9 = "and9";
   /**
    * Not
    */
