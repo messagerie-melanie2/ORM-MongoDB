@@ -39,18 +39,37 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
    * @var array
    */
   private static $_operatorsMapping = array(
-      \ORM\Core\Mapping\Operators::eq => '=',
-      \ORM\Core\Mapping\Operators::and_ => 'AND',
-      \ORM\Core\Mapping\Operators::or_ => 'OR',
-      \ORM\Core\Mapping\Operators::gt => '>',
-      \ORM\Core\Mapping\Operators::gte => '>=',
-      \ORM\Core\Mapping\Operators::in => 'IN',
-      \ORM\Core\Mapping\Operators::not_in => 'NOT IN',
-      \ORM\Core\Mapping\Operators::like => 'LIKE',
-      \ORM\Core\Mapping\Operators::lt => '<',
-      \ORM\Core\Mapping\Operators::lte => '<=',
-      \ORM\Core\Mapping\Operators::neq => '<>',
-      \ORM\Core\Mapping\Operators::not => 'NOT'
+          \ORM\Core\Mapping\Operators::eq => '=',
+          \ORM\Core\Mapping\Operators::gt => '>',
+          \ORM\Core\Mapping\Operators::gte => '>=',
+          \ORM\Core\Mapping\Operators::in => 'IN',
+          \ORM\Core\Mapping\Operators::not_in => 'NOT IN',
+          \ORM\Core\Mapping\Operators::like => 'LIKE',
+          \ORM\Core\Mapping\Operators::lt => '<',
+          \ORM\Core\Mapping\Operators::lte => '<=',
+          \ORM\Core\Mapping\Operators::neq => '<>',
+          \ORM\Core\Mapping\Operators::not => 'NOT',
+          \ORM\Core\Mapping\Operators::nor => '$nor',
+          \ORM\Core\Mapping\Operators::and_0 => 'AND',
+          \ORM\Core\Mapping\Operators::and_1 => 'AND',
+          \ORM\Core\Mapping\Operators::and_2 => 'AND',
+          \ORM\Core\Mapping\Operators::and_3 => 'AND',
+          \ORM\Core\Mapping\Operators::and_4 => 'AND',
+          \ORM\Core\Mapping\Operators::and_5 => 'AND',
+          \ORM\Core\Mapping\Operators::and_6 => 'AND',
+          \ORM\Core\Mapping\Operators::and_7 => 'AND',
+          \ORM\Core\Mapping\Operators::and_8 => 'AND',
+          \ORM\Core\Mapping\Operators::and_9 => 'AND',
+          \ORM\Core\Mapping\Operators::or_0 => 'OR',
+          \ORM\Core\Mapping\Operators::or_1 => 'OR',
+          \ORM\Core\Mapping\Operators::or_2 => 'OR',
+          \ORM\Core\Mapping\Operators::or_3 => 'OR',
+          \ORM\Core\Mapping\Operators::or_4 => 'OR',
+          \ORM\Core\Mapping\Operators::or_5 => 'OR',
+          \ORM\Core\Mapping\Operators::or_6 => 'OR',
+          \ORM\Core\Mapping\Operators::or_7 => 'OR',
+          \ORM\Core\Mapping\Operators::or_8 => 'OR',
+          \ORM\Core\Mapping\Operators::or_9 => 'OR',
   );
 
   /**
@@ -251,6 +270,11 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
       	reset($filter);
       	$_op = key($filter);
       	$key = $op;
+      	$post_key = "";
+      	if (strrpos($key, '_') === (strlen($key) - 2)) {
+      	  $post_key = substr($key, strlen($key) - 2);
+      	  $key = substr($key, 0, strlen($key) - 2);
+      	}
       	if (strpos($key, '.') !== false) {
       		$key = str_replace('.', '_', $key);
       	}
@@ -264,8 +288,8 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
       	} else if (!isset($value) && $_op == \ORM\Core\Mapping\Operators::neq) {
       	  $string .= "$searchKey IS NOT NULL";
       	} else {
-      	  $string .= "$searchKey " . self::$_operatorsMapping[$_op] . " :$searchKey";
-      	  $values[$searchKey] = $value;
+      	  $string .= "$searchKey " . self::$_operatorsMapping[$_op] . " :$searchKey$post_key";
+      	  $values[$searchKey.$post_key] = $value;
       	}
       } else {
       	$key = $filter;
