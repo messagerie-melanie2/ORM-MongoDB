@@ -27,13 +27,16 @@ include_once 'includes/orm.php';
 ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
   error_log("[Debug] $message", 0, "/var/tmp/orm_run_process.log");
 });
+ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
+  error_log("[Error] $message", 0, "/var/tmp/orm_run_process_error.log");
+});
 
 // $max_events = $argv[1];
 // $start_events = $argv[2];
 // $stop_events = $argv[3];
-$max_events = 1000;
+$max_events = 100000;
 $start_events = 0;
-$stop_events = 1000;
+$stop_events = 20;
 $count_events = 0;
 
 include_once 'tests/ubench-1.2.0/src/Ubench.php';
