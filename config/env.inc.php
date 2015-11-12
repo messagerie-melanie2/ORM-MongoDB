@@ -66,13 +66,13 @@ define('ENVIRONNEMENT_LIBM2', '');
  * Chemin vers la configuration externe
  */
 // Linux config files
-//define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_mongodb/');
+define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_mongodb/');
 //define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_pgsql/');
 //define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_mysql/');
 
 // Mac OSX config files
 //define('CONFIGURATION_PATH_LIBM2', '/Users/thomas/Development/git/ORM-MongoDB/config/ida_mongodb/');
-define('CONFIGURATION_PATH_LIBM2', '/Users/thomas/Development/git/ORM-MongoDB/config/ida_mysql/');
+//define('CONFIGURATION_PATH_LIBM2', '/Users/thomas/Development/git/ORM-MongoDB/config/ida_mysql/');
 
 
 /**
