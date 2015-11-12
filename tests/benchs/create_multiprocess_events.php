@@ -31,8 +31,8 @@ $bench->start();
 
 $nb_events = 100000;
 //$nb_threads = 4;
-//$nb_threads = 10;
-$nb_threads = 100;
+$nb_threads = 10;
+//$nb_threads = 100;
 
 /****** TRAITEMENT ICI *******/
 $events_by_thread = $nb_events / $nb_threads;
