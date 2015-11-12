@@ -34,8 +34,8 @@ $bench = new Ubench;
 $bench->start();
 $time_start = time();
 
-$nb_threads = 25;
-$max_children = 10000;
+$nb_threads = 100;
+$max_children = 100000;
 $nb_children = 0;
 $create_by_child = 10;
 
@@ -51,7 +51,7 @@ for ($i = 0; $i < $nb_threads; $i++) {
 while (pcntl_waitpid(0, $status) != -1) {
   $status = pcntl_wexitstatus($status);
   //echo "Fin du process $status / nb children : $nb_children\n";
-  if ($max_children > $nb_children) {
+  if ($max_children >= $nb_children) {
     $pid = pcntl_fork();
     $nb_children++;
     if (!$pid) {
