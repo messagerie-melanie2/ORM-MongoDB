@@ -32,26 +32,44 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
    * @var string
    */
   protected $_collectionName;
-  
+
   /**
    * Mapping des opérateurs
    *
    * @var array
    */
   private static $_operatorsMapping = array(
-      \ORM\Core\Mapping\Operators::eq => '$eq',
-      \ORM\Core\Mapping\Operators::and_ => '$and',
-      \ORM\Core\Mapping\Operators::or_ => '$or',
-      \ORM\Core\Mapping\Operators::gt => '$gt',
-      \ORM\Core\Mapping\Operators::gte => '$gte',
-      \ORM\Core\Mapping\Operators::in => '$in',
-      \ORM\Core\Mapping\Operators::not_in => '$nin',
-      \ORM\Core\Mapping\Operators::like => '$regex',
-      \ORM\Core\Mapping\Operators::lt => '$lt',
-      \ORM\Core\Mapping\Operators::lte => '$lte',
-      \ORM\Core\Mapping\Operators::neq => '$neq',
-      \ORM\Core\Mapping\Operators::not => '$not',
-      \ORM\Core\Mapping\Operators::nor => '$nor' 
+          \ORM\Core\Mapping\Operators::eq => '$eq',
+          \ORM\Core\Mapping\Operators::gt => '$gt',
+          \ORM\Core\Mapping\Operators::gte => '$gte',
+          \ORM\Core\Mapping\Operators::in => '$in',
+          \ORM\Core\Mapping\Operators::not_in => '$nin',
+          \ORM\Core\Mapping\Operators::like => '$regex',
+          \ORM\Core\Mapping\Operators::lt => '$lt',
+          \ORM\Core\Mapping\Operators::lte => '$lte',
+          \ORM\Core\Mapping\Operators::neq => '$neq',
+          \ORM\Core\Mapping\Operators::not => '$not',
+          \ORM\Core\Mapping\Operators::nor => '$nor',
+          \ORM\Core\Mapping\Operators::and_0 => '$and',
+          \ORM\Core\Mapping\Operators::and_1 => '$and',
+          \ORM\Core\Mapping\Operators::and_2 => '$and',
+          \ORM\Core\Mapping\Operators::and_3 => '$and',
+          \ORM\Core\Mapping\Operators::and_4 => '$and',
+          \ORM\Core\Mapping\Operators::and_5 => '$and',
+          \ORM\Core\Mapping\Operators::and_6 => '$and',
+          \ORM\Core\Mapping\Operators::and_7 => '$and',
+          \ORM\Core\Mapping\Operators::and_8 => '$and',
+          \ORM\Core\Mapping\Operators::and_9 => '$and',
+          \ORM\Core\Mapping\Operators::or_0 => '$or',
+          \ORM\Core\Mapping\Operators::or_1 => '$or',
+          \ORM\Core\Mapping\Operators::or_2 => '$or',
+          \ORM\Core\Mapping\Operators::or_3 => '$or',
+          \ORM\Core\Mapping\Operators::or_4 => '$or',
+          \ORM\Core\Mapping\Operators::or_5 => '$or',
+          \ORM\Core\Mapping\Operators::or_6 => '$or',
+          \ORM\Core\Mapping\Operators::or_7 => '$or',
+          \ORM\Core\Mapping\Operators::or_8 => '$or',
+          \ORM\Core\Mapping\Operators::or_9 => '$or',
   );
 
   /**
@@ -66,7 +84,7 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
   /**
    * Setter pour le nom de la collection
    *
-   * @param string $collectionName          
+   * @param string $collectionName
    */
   public function setCollectionName($collectionName) {
     $this->_collectionName = $collectionName;
@@ -104,9 +122,9 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
   /**
    * Méthode de mapping pour un champ
    *
-   * @param string $key          
-   * @param multiple $value          
-   * @param array $array          
+   * @param string $key
+   * @param multiple $value
+   * @param array $array
    */
   private function _mapField($key, $value, &$array) {
     if (strpos($key, '.') !== false) {
@@ -130,7 +148,7 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
    * Défini les champs mappés suite à une lecture dans la base de données
    * @recursive
    *
-   * @param array $mappingFields          
+   * @param array $mappingFields
    * @param
    *          string clé parente
    */
@@ -166,7 +184,7 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
         } else {
           $this->setField($key, $mappingField, $rKey);
         }
-      
+
       } else if (is_array($mappingField)) {
         $this->setMappingFields($mappingField, $key);
       }
@@ -216,7 +234,7 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
             } else {
               // C'est un operateur particulier
               $searchFields[$searchKey] = array(
-                  self::$_operatorsMapping[$this->_operators[$key]] => $value 
+                  self::$_operatorsMapping[$this->_operators[$key]] => $value
               );
             }
           } else {
@@ -232,13 +250,13 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
   /**
    * Génère un filtre Mongo en fonction du filtre passé en tableau
    *
-   * @param array $filters          
-   * @param string $operators          
+   * @param array $filters
+   * @param string $operators
    * @return array
    */
   private function _filterToMongo($filters, $operators = null) {
     $mongoDbFilter = array();
-    
+
     foreach ($filters as $op => $filter) {
       if (is_array($filter) && isset(self::$_operatorsMapping[$op])) {
         // C'est un tableau, donc un nouveau filtre, on fait un appel recursif
@@ -246,7 +264,7 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
           $mongoDbFilter[self::$_operatorsMapping[$op]] = $this->_filterToMongo($filter, $op);
         } else {
           $mongoDbFilter[] = array(
-              self::$_operatorsMapping[$op] => $this->_filterToMongo($filter, $op) 
+              self::$_operatorsMapping[$op] => $this->_filterToMongo($filter, $op)
           );
         }
       } else if (is_array($filter)) {
@@ -254,6 +272,9 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
         reset($filter);
         $_op = key($filter);
         $key = $op;
+        if (strrpos($key, '_') === (strlen($key) - 2)) {
+          $key = substr($key, 0, strlen($key) - 2);
+        }
         if (strpos($key, '.') !== false) {
           $_f = explode('.', $key, 2);
           $searchKey = $this->_getMapFieldName($_f[0]) . '.' . $_f[1];
@@ -269,28 +290,28 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
           // C'est un like on utilise une regex
           $regex = new \MongoRegex("/" . $value . "/i");
           $mongoDbFilter[] = array(
-              $searchKey => $regex 
+              $searchKey => $regex
           );
         } else if ($_op == \ORM\Core\Mapping\Operators::neq && ! isset($value)) {
           // C'est un operateur particulier
           $mongoDbFilter[] = array(
               $searchKey => array(
-                  '$exists' => true 
-              ) 
+                  '$exists' => true
+              )
           );
         } else if ($_op == \ORM\Core\Mapping\Operators::eq && ! isset($value)) {
           // C'est un operateur particulier
           $mongoDbFilter[] = array(
               $searchKey => array(
-                  '$exists' => false 
-              ) 
+                  '$exists' => false
+              )
           );
         } else {
           // C'est un operateur particulier
           $mongoDbFilter[] = array(
               $searchKey => array(
-                  self::$_operatorsMapping[$_op] => $value 
-              ) 
+                  self::$_operatorsMapping[$_op] => $value
+              )
           );
         }
       } else {
@@ -316,36 +337,36 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
             // C'est un like on utilise une regex
             $regex = new \MongoRegex("/" . $value . "/i");
             $mongoDbFilter[] = array(
-                $searchKey => $regex 
+                $searchKey => $regex
             );
           } else if ($this->_operators[$key] == \ORM\Core\Mapping\Operators::neq && ! isset($value)) {
             // C'est un operateur particulier
             $mongoDbFilter[] = array(
                 $searchKey => array(
-                    '$exists' => true 
-                ) 
+                    '$exists' => true
+                )
             );
           } else if ($this->_operators[$key] == \ORM\Core\Mapping\Operators::eq && ! isset($value)) {
             // C'est un operateur particulier
             $mongoDbFilter[] = array(
                 $searchKey => array(
-                    '$exists' => false 
-                ) 
+                    '$exists' => false
+                )
             );
           } else {
             // C'est un operateur particulier
             $mongoDbFilter[] = array(
                 $searchKey => array(
-                    self::$_operatorsMapping[$this->_operators[$key]] => $value 
-                ) 
+                    self::$_operatorsMapping[$this->_operators[$key]] => $value
+                )
             );
           }
         } else {
           $mongoDbFilter[] = array(
-              $searchKey => $value 
+              $searchKey => $value
           );
         }
-      
+
       }
     }
     return $mongoDbFilter;
@@ -447,8 +468,8 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
   /**
    * Conversion d'une valeur de l'ORM en Mongo
    *
-   * @param mixed $value          
-   * @param string $mappingKey          
+   * @param mixed $value
+   * @param string $mappingKey
    * @return string
    */
   protected function _convertToMongo($value, $mappingKey = null) {
@@ -467,8 +488,8 @@ class MongoDBMapping extends \ORM\Core\DB\DriverMapping {
   /**
    * Conversion d'une valeur Mongo en valeur de l'ORM
    *
-   * @param string $value          
-   * @param string $mappingKey          
+   * @param string $value
+   * @param string $mappingKey
    * @return mixed
    */
   protected function _convertFromMongo($value, $mappingKey) {
