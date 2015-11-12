@@ -32,7 +32,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
    * @var string
    */
   protected $_tableName;
-  
+
   /**
    * Mapping des opérateurs
    *
@@ -50,7 +50,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
       \ORM\Core\Mapping\Operators::lt => '<',
       \ORM\Core\Mapping\Operators::lte => '<=',
       \ORM\Core\Mapping\Operators::neq => '<>',
-      \ORM\Core\Mapping\Operators::not => 'NOT' 
+      \ORM\Core\Mapping\Operators::not => 'NOT'
   );
 
   /**
@@ -65,7 +65,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
   /**
    * Setter pour le nom de la table
    *
-   * @param string $tableName          
+   * @param string $tableName
    */
   public function setTableName($tableName) {
     $this->_tableName = $tableName;
@@ -115,7 +115,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
    * Défini les champs mappés suite à une lecture dans la base de données
    * @recursive
    *
-   * @param array $mappingFields          
+   * @param array $mappingFields
    * @param
    *          string clé parente
    */
@@ -175,7 +175,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
   public function getSearchFields() {
     $searchFields = "";
     $searchValues = array();
-    
+
     if (isset($this->_filter)) {
       $result = $this->_filterToSql($this->_filter);
       $searchFields = $result['string'];
@@ -215,27 +215,27 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
     // Retourne les résultats
     return array(
         'searchFields' => $searchFields,
-        'searchValues' => $searchValues 
+        'searchValues' => $searchValues
     );
   }
 
   /**
    * Génère un filtre SQL en fonction du filtre passé en tableau
    *
-   * @param array $filters          
-   * @param string $operators          
+   * @param array $filters
+   * @param string $operators
    * @return array
    */
   private function _filterToSql($filters, $operators = null) {
     $string = "";
     $values = array();
     $par = false;
-    
+
     if (count($filters) > 1) {
     	$string = "(";
     	$par = true;
     }
-    
+
     foreach ($filters as $op => $filter) {
       // Ajoute l'operateur de transition
       if ($string != "" && $string != "(") {
@@ -259,20 +259,21 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
       	if (isset($value['date'])) {
       	  $value = $value['date'];
       	}
-      	$string .= "$searchKey " . self::$_operatorsMapping[$_op] . " :$searchKey";
-      	$values[$searchKey] = $value;
+      	if (!isset($value) && $_op == \ORM\Core\Mapping\Operators::eq) {
+      	  $string .= "$searchKey IS NULL";
+      	} else if (!isset($value) && $_op == \ORM\Core\Mapping\Operators::neq) {
+      	  $string .= "$searchKey IS NOT NULL";
+      	} else {
+      	  $string .= "$searchKey " . self::$_operatorsMapping[$_op] . " :$searchKey";
+      	  $values[$searchKey] = $value;
+      	}
       } else {
       	$key = $filter;
       	if (strpos($key, '.') !== false) {
       	  $key = str_replace('.', '_', $key);
       	}
       	$key = $this->_getMapFieldName($key);
-        // On génère le filtre
-        if (isset($this->_operators[$key])) {
-          $string .= "$key " . self::$_operatorsMapping[$this->_operators[$filter]] . " :$key";
-        } else {
-          $string .= "$key = :$key";
-        }
+
         $value = $this->getField($key);
         if (is_array($value)) {
           if (isset($value['date'])) {
@@ -281,17 +282,29 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
             $value = serialize($value);
           }
         }
-        $values[$key] = $value;
+        if (!isset($value) && $_op == \ORM\Core\Mapping\Operators::eq) {
+      	  $string .= "$searchKey IS NULL";
+      	} else if (!isset($value) && $_op == \ORM\Core\Mapping\Operators::neq) {
+      	  $string .= "$searchKey IS NOT NULL";
+      	} else {
+      	  // On génère le filtre
+      	  if (isset($this->_operators[$key])) {
+      	    $string .= "$key " . self::$_operatorsMapping[$this->_operators[$filter]] . " :$key";
+      	  } else {
+      	    $string .= "$key = :$key";
+      	  }
+      	  $values[$key] = $value;
+      	}
       }
     }
-    
+
     if ($par) {
     	$string .= ")";
     }
-    
+
     return array(
         "string" => $string,
-        "values" => $values 
+        "values" => $values
     );
   }
 
@@ -368,7 +381,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
     return array(
         "insertRequest" => $insertRequest,
         "insertFields" => $insertFields,
-        "insertValues" => $insertValues 
+        "insertValues" => $insertValues
     );
   }
 
@@ -439,7 +452,7 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
     }
     return array(
         "updateFields" => $updateFields,
-        "updateValues" => $updateValues 
+        "updateValues" => $updateValues
     );
   }
 
@@ -560,8 +573,8 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
   /**
    * Conversion d'une valeur de l'ORM en SQL
    *
-   * @param mixed $value          
-   * @param string $mappingKey          
+   * @param mixed $value
+   * @param string $mappingKey
    * @return string
    */
   protected function _convertToSql($value, $mappingKey = null) {
@@ -578,8 +591,8 @@ class PDOMapping extends \ORM\Core\DB\DriverMapping {
   /**
    * Conversion d'une valeur SQL en valeur de l'ORM
    *
-   * @param string $value          
-   * @param string $mappingKey          
+   * @param string $value
+   * @param string $mappingKey
    * @return mixed
    */
   protected function _convertFromSql($value, $mappingKey) {
