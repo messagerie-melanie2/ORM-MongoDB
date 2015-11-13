@@ -404,24 +404,24 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       $end->setTimezone($timezone);
 
       $filter = array(
-              Operators::and_0 => array(
-                      'calendar' => array(Operators::eq => $calendar),
-                      Operators::or_0 => array(
-                              Operators::and_0 => array(
-                                      'start_0' => array(Operators::gt => $start),
-                                      'start_1' => array(Operators::lt => $end),
-                              ),
-                              Operators::and_1 => array(
-                                      'end_0' => array(Operators::gt => $start),
-                                      'end_1' => array(Operators::lt => $end),
-                              ),
-                              Operators::and_2 => array(
-                                      'recurrence.freq' => array(Operators::neq => null),
-                                      'recurrence.until' => array(Operators::gt => $start),
-                                      'end_2' => array(Operators::lt => $end),
-                              ),
-                      ),
-              ),
+        Operators::or_0 => array(
+          Operators::and_0 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'start_0' => array(Operators::gt => $start),
+            'start_1' => array(Operators::lt => $end),
+          ),
+          Operators::and_1 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'end_0' => array(Operators::gt => $start),
+            'end_1' => array(Operators::lt => $end),
+          ),
+          Operators::and_2 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'recurrence.freq' => array(Operators::neq => null),
+            'recurrence.until' => array(Operators::gt => $start),
+            'end_1' => array(Operators::lt => $end),
+          ),
+        ),
       );
       $events = $event->list(null, $filter);
     } else if ($val % 5 === 0) {
@@ -433,24 +433,24 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       $end->setTimezone($timezone);
 
       $filter = array(
-              Operators::and_0 => array(
-                      'calendar' => array(Operators::eq => $calendar),
-                      Operators::or_0 => array(
-                              Operators::and_0 => array(
-                                      'start_0' => array(Operators::gt => $start),
-                                      'start_1' => array(Operators::lt => $end),
-                              ),
-                              Operators::and_1 => array(
-                                      'end_0' => array(Operators::gt => $start),
-                                      'end_1' => array(Operators::lt => $end),
-                              ),
-                              Operators::and_2 => array(
-                                      'recurrence.freq' => array(Operators::neq => null),
-                                      'recurrence.until' => array(Operators::gt => $start),
-                                      'end_2' => array(Operators::lt => $end),
-                              ),
-                      ),
-              ),
+        Operators::or_0 => array(
+          Operators::and_0 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'start_0' => array(Operators::gt => $start),
+            'start_1' => array(Operators::lt => $end),
+          ),
+          Operators::and_1 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'end_0' => array(Operators::gt => $start),
+            'end_1' => array(Operators::lt => $end),
+          ),
+          Operators::and_2 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'recurrence.freq' => array(Operators::neq => null),
+            'recurrence.until' => array(Operators::gt => $start),
+            'end_1' => array(Operators::lt => $end),
+          ),
+        ),
       );
       $events = $event->list(null, $filter);
     } else {
@@ -462,24 +462,24 @@ C'est une course de groupe II réservée aux chevaux de 5 ans et plus. Elle se c
       $end->setTimezone($timezone);
 
       $filter = array(
-              Operators::and_0 => array(
-                      'calendar' => array(Operators::eq => $calendar),
-                      Operators::or_0 => array(
-                              Operators::and_0 => array(
-                                      'start_0' => array(Operators::gt => $start),
-                                      'start_1' => array(Operators::lt => $end),
-                              ),
-                              Operators::and_1 => array(
-                                      'end_0' => array(Operators::gt => $start),
-                                      'end_1' => array(Operators::lt => $end),
-                              ),
-                              Operators::and_2 => array(
-                                      'recurrence.freq' => array(Operators::neq => null),
-                                      'recurrence.until' => array(Operators::gt => $start),
-                                      'end_2' => array(Operators::lt => $end),
-                              ),
-                      ),
-              ),
+        Operators::or_0 => array(
+          Operators::and_0 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'start_0' => array(Operators::gt => $start),
+            'start_1' => array(Operators::lt => $end),
+          ),
+          Operators::and_1 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'end_0' => array(Operators::gt => $start),
+            'end_1' => array(Operators::lt => $end),
+          ),
+          Operators::and_2 => array(
+            'calendar' => array(Operators::eq => $calendar),
+            'recurrence.freq' => array(Operators::neq => null),
+            'recurrence.until' => array(Operators::gt => $start),
+            'end_1' => array(Operators::lt => $end),
+          ),
+        ),
       );
       $events = $event->list(null, $filter);
     }
