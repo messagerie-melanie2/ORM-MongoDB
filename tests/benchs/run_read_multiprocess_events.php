@@ -26,10 +26,10 @@ include_once 'includes/orm.php';
 include_once 'tests/ubench-1.2.0/src/Ubench.php';
 
 ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
-  error_log("[Debug] $message", 3, "/var/tmp/orm_run_process.log");
+  error_log("[Debug] $message\r\n", 3, "/var/tmp/orm_run_process.log");
 });
 ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
-  error_log("[Error] $message", 0, "/var/tmp/orm_run_process_error.log");
+  error_log("[Error] $message\r\n", 3, "/var/tmp/orm_run_process_error.log");
 });
 
 // Gestion des benchs
@@ -40,15 +40,15 @@ $time_start = time();
 $max_children = 100000000;
 $nb_children = 0;
 
-$nb_threads = 20;
-$duration = 60*60;
+$nb_threads = 10;
+$duration = 10*60;
 
 /****** TRAITEMENT ICI *******/
 for ($i = 0; $i < $nb_threads; $i++) {
   $pid = pcntl_fork();
   $nb_children++;
   if (!$pid) {
-    createProcess($i);
+    createProcess($i, $nb_children);
   }
 }
 
@@ -60,14 +60,15 @@ while (pcntl_waitpid(0, $status) != -1) {
     $nb_children++;
 
     if (!$pid) {
-      createProcess($status);
+      createProcess($status, $nb_children);
     }
   }
 }
 
-function createProcess($i) {
+function createProcess($i, $nb_children) {
+  global $max_children;
   //print "Creation du process $i\n";
-  $events = \ORM\Tests\Lib\Crud::ReadRandomEvents($nb_children, $max_children);
+  \ORM\Tests\Lib\Crud::ReadRandomEvents($nb_children, $max_children);
   usleep(1000);
   exit($i);
 }

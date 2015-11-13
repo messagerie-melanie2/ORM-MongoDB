@@ -34,9 +34,9 @@ ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
 // $max_events = $argv[1];
 // $start_events = $argv[2];
 // $stop_events = $argv[3];
-$max_events = 100000;
+$max_events = 1000000;
 $start_events = 0;
-$stop_events = 20;
+$stop_events = 1000;
 $count_events = 0;
 
 include_once 'tests/ubench-1.2.0/src/Ubench.php';

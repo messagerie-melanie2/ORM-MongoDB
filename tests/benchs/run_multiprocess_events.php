@@ -26,10 +26,10 @@ include_once 'includes/orm.php';
 include_once 'tests/ubench-1.2.0/src/Ubench.php';
 
 ORM\Core\Log\ORMLog::InitDebugLog(function($message) {
-  error_log("[Debug] $message", 3, "/var/tmp/orm_run_process.log");
+  error_log("[Debug] $message\r\n", 3, "/var/tmp/orm_run_process.log");
 });
 ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
-  error_log("[Error] $message", 0, "/var/tmp/orm_run_process_error.log");
+  error_log("[Error] $message\r\n", 3, "/var/tmp/orm_run_process_error.log");
 });
 
 // Gestion des benchs
@@ -37,18 +37,18 @@ $bench = new Ubench;
 $bench->start();
 $time_start = time();
 
-$max_children = 100000000;
+$max_children = 10000000;
 $nb_children = 0;
 
 $nb_threads = 20;
-$duration = 60*60;
+$duration = 30*60;
 
 /****** TRAITEMENT ICI *******/
 for ($i = 0; $i < $nb_threads; $i++) {
   $pid = pcntl_fork();
   $nb_children++;
   if (!$pid) {
-    createProcess($i);
+    createProcess($i, $nb_children);
   }
 }
 
@@ -60,28 +60,31 @@ while (pcntl_waitpid(0, $status) != -1) {
     $nb_children++;
 
     if (!$pid) {
-      createProcess($status);
+      createProcess($status, $nb_children);
     }
   }
 }
 
-function createProcess($i) {
+function createProcess($i, $nb_children) {
+  global $max_children;
   //print "Creation du process $i\n";
   $events = \ORM\Tests\Lib\Crud::ReadRandomEvents($nb_children, $max_children);
   if ($nb_children%5 === 0) {
     \ORM\Tests\Lib\Crud::CreateLightRandomEvent($nb_children, $max_children);
   } else if ($nb_children%6 === 0) {
     if (count($events) > 0) {
-      $event = $events[($nb_children%count($events))-1];
+      $nb = ($nb_children%count($events))-1; if ($nb == -1) $nb = 0;
+      $event = $events[$nb];
       \ORM\Tests\Lib\Crud::UpdateRandomEvent($nb_children, $max_children, $event->uid, $event->calendar);
     }
   } else if ($nb_children%11 === 0) {
     if (count($events) > 0) {
-      $event = $events[($nb_children%count($events))-1];
+      $nb = ($nb_children%count($events))-1; if ($nb == -1) $nb = 0;
+      $event = $events[$nb];
       \ORM\Tests\Lib\Crud::DeleteEvent($event->uid, $event->calendar);
     }
   }
-  usleep(10000);
+  usleep(1000);
   exit($i);
 }
 /****** FIN du TRAITEMENT ICI ***/
