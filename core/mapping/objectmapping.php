@@ -38,7 +38,7 @@ abstract class ObjectMapping {
   private $_instances;
   /**
    * Driver Mapping associé à le ou les objets courants
-   * @var \ORM\Core\DB\DriverMapping[]
+   * @var \ORM\Core\Drivers\DriverMapping[]
    */
   private $_driverMappingInstances;
 
@@ -65,7 +65,7 @@ abstract class ObjectMapping {
       foreach ($mapping as $map) {
         if ($map['ObjectType'] == $this->_objectType) {
           // Initialisation de l'instance
-          $instance = \ORM\Core\DB\DriverMapping::get_instance($map);
+          $instance = \ORM\Core\Drivers\DriverMapping::get_instance($map);
           $this->_driverMappingInstances[$instance->instanceId()] = $instance;
           $this->_instances[] = $instance->instanceId();
         }
@@ -85,7 +85,7 @@ abstract class ObjectMapping {
   /**
    * Retourne les instances nécessaire au bon fonctionnement de l'objet
    * Permet de faire des enfants de l'objet parent utilisant les mêmes instances
-   * @return \ORM\Core\DB\DriverMapping[]
+   * @return \ORM\Core\Drivers\DriverMapping[]
    */
   public function getDriverMappingInstances() {
     return $this->_driverMappingInstances;
@@ -93,7 +93,7 @@ abstract class ObjectMapping {
   /**
    * Retourne l'instance de driver mapping en fonction du driver configuré dans le mapping
    * @param string $objectType
-   * @return \ORM\Core\DB\DriverMapping
+   * @return \ORM\Core\Drivers\DriverMapping
    */
   public function getDriverMappingInstanceByDriver($driver) {
     foreach ($this->_driverMappingInstances as $driverMappingInstance) {
@@ -105,7 +105,7 @@ abstract class ObjectMapping {
   /**
    * Retourne l'instance de driver mapping en fonction de l'object type configuré dans le mapping
    * @param string $objectType
-   * @return \ORM\Core\DB\DriverMapping
+   * @return \ORM\Core\Drivers\DriverMapping
    */
   public function getDriverMappingInstanceByObjectType($objectType) {
     foreach ($this->_driverMappingInstances as $driverMappingInstance) {
@@ -116,7 +116,7 @@ abstract class ObjectMapping {
   }
   /**
    * Défini les instances de drivermapping de l'objet courant
-   * @param \ORM\Core\DB\DriverMapping[] $driverMappingInstances
+   * @param \ORM\Core\Drivers\DriverMapping[] $driverMappingInstances
    */
   public function setDriverMappingInstances($driverMappingInstances) {
   	$this->_driverMappingInstances = array();
