@@ -55,7 +55,7 @@ class PDO extends \ORM\Core\Drivers\Driver {
   /**
    * Connexion au serveur de base de données
    *
-   * @return boolean True si connexion OK
+   * @return boolean true si connexion OK
    */
   public function connect() {
     // Configuration de la connexion au serveur
@@ -79,17 +79,17 @@ class PDO extends \ORM\Core\Drivers\Driver {
   }
   /**
    * Déconnexion de la base MongoDB
-   * @return boolean True si ok, false sinon
+   * @return boolean true si ok, false sinon
    */
   public function disconnect() {
-    //$this->_pdo->disconnect();
+    $this->_pdo->disconnect();
     return true;
   }
 
   /**
    * Création d'un objet
    * @param \ORM\Core\Drivers\DriverMapping $args
-   * @return boolean True si ok, false sinon
+   * @return boolean true si ok, false sinon
    */
   public function create(\ORM\Core\Drivers\DriverMapping $args) {
     \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->create()");
@@ -166,11 +166,11 @@ class PDO extends \ORM\Core\Drivers\Driver {
   /**
    * Mise à jour d'un objet
    * @param \ORM\Core\Drivers\DriverMapping $args
-   * @return boolean True si ok, false sinon
+   * @return boolean true si ok, false sinon
    */
   public function update(\ORM\Core\Drivers\DriverMapping $args) {
     \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->update()");
-    $ret = null;
+    $ret = false;
 
     // Génération de la requête
     $query = self::UPDATE;
@@ -201,11 +201,11 @@ class PDO extends \ORM\Core\Drivers\Driver {
   /**
    * Suppression d'un objet
    * @param \ORM\Core\Drivers\DriverMapping $args
-   * @return boolean True si ok, false sinon
+   * @return boolean true si ok, false sinon
    */
   public function delete(\ORM\Core\Drivers\DriverMapping $args) {
     \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->delete()");
-    $ret = null;
+    $ret = false;
 
     // Génération de la requête
     $query = self::DELETE;

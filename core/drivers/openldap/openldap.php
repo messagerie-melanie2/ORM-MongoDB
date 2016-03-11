@@ -19,11 +19,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace ORM\Core\DB\PgSQL;
+namespace ORM\Core\Drivers\Openldap;
 
 /**
- * Driver PgSQL
+ * Driver OpenLDAP
  */
-class PgSQL extends \ORM\Core\DB\PDO\PDO {
+class Openldap extends \ORM\Core\Drivers\Ldap {
 
 }

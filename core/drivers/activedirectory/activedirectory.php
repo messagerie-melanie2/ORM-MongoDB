@@ -19,11 +19,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace ORM\Core\DB\MySQL;
+namespace ORM\Core\Drivers\Activedirectory;
 
 /**
- * Driver MySQL
+ * Driver Active Directory
  */
-class MySQL extends \ORM\Core\DB\PDO\PDO {
+class Activedirectory extends \ORM\Core\Drivers\Ldap {
 
 }

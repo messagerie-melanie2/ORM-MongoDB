@@ -45,7 +45,7 @@ class MongoDB extends \ORM\Core\Drivers\Driver {
   /**
    * Connexion au serveur MongoDB
    *
-   * @return boolean True si connexion OK
+   * @return boolean true si connexion OK
    */
   public function connect() {
     $options = isset($this->config['options']) ? $this->config['options'] : array();
@@ -64,7 +64,7 @@ class MongoDB extends \ORM\Core\Drivers\Driver {
   }
   /**
    * Déconnexion de la base MongoDB
-   * @return boolean True si ok, false sinon
+   * @return boolean true si ok, false sinon
    */
   public function disconnect() {
     // Pas de déconnexion en MongoDB
@@ -87,11 +87,11 @@ class MongoDB extends \ORM\Core\Drivers\Driver {
   /**
    * Création d'un objet
    * @param \ORM\Core\Drivers\DriverMapping $args
-   * @return boolean True si ok, false sinon
+   * @return boolean true si ok, false sinon
    */
   public function create(\ORM\Core\Drivers\DriverMapping $args) {
     \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:MongoDB]->create()");
-    $ret = null;
+    $ret = false;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
       $ret = $collection->insert($args->getCreateFields(), $args->getOptions());
@@ -186,11 +186,11 @@ class MongoDB extends \ORM\Core\Drivers\Driver {
   /**
    * Mise à jour d'un objet
    * @param \ORM\Core\Drivers\DriverMapping $args
-   * @return boolean True si ok, false sinon
+   * @return boolean true si ok, false sinon
    */
   public function update(\ORM\Core\Drivers\DriverMapping $args) {
     \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:MongoDB]->update()");
-    $ret = null;
+    $ret = false;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
       $ret = $collection->update($args->getSearchFields(), array('$set' => $args->getUpdateFields()), $args->getOptions());
@@ -213,11 +213,11 @@ class MongoDB extends \ORM\Core\Drivers\Driver {
   /**
    * Suppression d'un objet
    * @param \ORM\Core\Drivers\DriverMapping $args
-   * @return boolean True si ok, false sinon
+   * @return boolean true si ok, false sinon
    */
   public function delete(\ORM\Core\Drivers\DriverMapping $args) {
     \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:MongoDB]->delete()");
-    $ret = null;
+    $ret = false;
     try {
       $collection = $this->_getCollection($args->getCollectionName());
       $ret = $collection->remove($args->getSearchFields(), $args->getOptions());
