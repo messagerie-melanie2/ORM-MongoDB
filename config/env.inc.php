@@ -48,17 +48,17 @@ define('MODE_MULTIPLE', 'multiple');
 /**
  * Configuration externe ou interne
  * La configuration TYPE_INTERNAL va lire les données dans le répertoire /config de l'ORM
- * Dans ce cas la configuration chargée sera fonction du ENVIRONNEMENT_LIBM2
- * La configuration TYPE_EXTERNAL va les lire les données dans un répertoire configuré dans CONFIGURATION_PATH_LIBM2
+ * Dans ce cas la configuration chargée sera fonction du ENVIRONNEMENT_LIBORM
+ * La configuration TYPE_EXTERNAL va les lire les données dans un répertoire configuré dans CONFIGURATION_PATH_LIBORM
  */
-define('CONFIGURATION_TYPE_LIBM2', TYPE_EXTERNAL);
+define('CONFIGURATION_TYPE_LIBORM', TYPE_EXTERNAL);
 
 
 /****** CONFIGURATION INTERNE ******/
 /**
  * Choix de l'environnement à configurer, si utilisation de la configuration interne
  */
-define('ENVIRONNEMENT_LIBM2', '');
+define('ENVIRONNEMENT_LIBORM', '');
 
 
 /***** CONFIGURATION EXTERNE *******/
@@ -66,20 +66,21 @@ define('ENVIRONNEMENT_LIBM2', '');
  * Chemin vers la configuration externe
  */
 // Linux config files
-define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_mongodb/');
-//define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_pgsql/');
-//define('CONFIGURATION_PATH_LIBM2', '/home/thomas/git/github/ORM-MongoDB/config/ida_mysql/');
+//define('CONFIGURATION_PATH_LIBORM', '/home/thomas/git/github/ORM-MongoDB/config/ida_mongodb/');
+//define('CONFIGURATION_PATH_LIBORM', '/home/thomas/git/github/ORM-MongoDB/config/ida_pgsql/');
+//define('CONFIGURATION_PATH_LIBORM', '/home/thomas/git/github/ORM-MongoDB/config/ida_mysql/');
+define('CONFIGURATION_PATH_LIBORM', '/home/thomas/git/github/ORM-MongoDB/config/ida_melanie/');
 
 // Mac OSX config files
-//define('CONFIGURATION_PATH_LIBM2', '/Users/thomas/Development/git/ORM-MongoDB/config/ida_mongodb/');
-//define('CONFIGURATION_PATH_LIBM2', '/Users/thomas/Development/git/ORM-MongoDB/config/ida_mysql/');
+//define('CONFIGURATION_PATH_LIBORM', '/Users/thomas/Development/git/ORM-MongoDB/config/ida_mongodb/');
+//define('CONFIGURATION_PATH_LIBORM', '/Users/thomas/Development/git/ORM-MongoDB/config/ida_mysql/');
 
 
 /**
  * MODE_SIMPLE ou MODE_MULTIPLE pour la configuration TYPE_EXTERNAL
  * Le MODE_SIMPLE va lire les données directement dans le CONFIGURATION_PATH
- * Le MODE_MULTIPLE permet de gérer plusieurs configuration dans le CONFIGURATION_PATH_LIBM2
- * Dans ce cas la configuration va être lu dans le répertoire correspondant au CONFIGURATION_APP_LIBM2
+ * Le MODE_MULTIPLE permet de gérer plusieurs configuration dans le CONFIGURATION_PATH_LIBORM
+ * Dans ce cas la configuration va être lu dans le répertoire correspondant au CONFIGURATION_APP_LIBORM
  * qui doit être configuré dans l'application
  */
-define('CONFIGURATION_MODE_LIBM2', MODE_SIMPLE);
+define('CONFIGURATION_MODE_LIBORM', MODE_SIMPLE);
