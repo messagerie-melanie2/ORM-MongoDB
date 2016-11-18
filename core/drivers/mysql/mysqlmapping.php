@@ -46,13 +46,15 @@ class MySQLMapping extends \ORM\Core\Drivers\PDO\PDOMapping {
    */
   protected function _convertToSql($value, $mappingKey = null) {
     if (is_array($value)) {
-      $convertedValue = serialize($value);
+      if (isset($mappingKey) && $this->_isJson($mappingKey)) {
+        $convertedValue = json_encode($value);
+      }
+      else {
+        $convertedValue = serialize($value);
+      }
     }
     else if (isset($mappingKey) && $this->_isDateTime($mappingKey) || $value instanceof \DateTime) {
-      $convertedValue = array();      
-      $convertedValue['tz'] = $value->getTimezone()->getName();
-      $value->setTimezone(new \DateTimeZone('GMT'));
-      $convertedValue['date'] = $value->format('Y-m-d H:i:s');
+      $convertedValue = $value->format('c');
     }
     else {
       $convertedValue = $value;
@@ -68,6 +70,8 @@ class MySQLMapping extends \ORM\Core\Drivers\PDO\PDOMapping {
   protected function _convertFromSql($value, $mappingKey) {
     if ($this->_isArray($mappingKey)) {
       $convertedValue = unserialize($value);
+    } else if ($this->_isJson($mappingKey)) {
+      $convertedValue = json_decode($value, true);
     }
     else if ($this->_isDateTime($mappingKey)) {
       $convertedValue = new \DateTime($value, new \DateTimeZone('GMT'));
