@@ -30,23 +30,28 @@ abstract class ObjectMapping {
    * Type de l'objet courant (utilisé pour le mapping)
    * @var string
    */
-  private $_objectType;
+  protected $_objectType;
   /**
    * Liste des instances
    * @var array[]
    */
-  private $_instances;
+  protected $_instances;
   /**
    * Driver Mapping associé à le ou les objets courants
    * @var \ORM\Core\Drivers\DriverMapping[]
    */
-  private $_driverMappingInstances;
+  protected $_driverMappingInstances;
+  /**
+   * Objet parent qui peut être passé en paramètre du constructeur
+   * @var ObjectMapping
+   */
+  protected $_parentObject;
 
   /**
    * Constructeur par défaut de l'object mapping
    * Doit être appelé par tous les objets
    */
-  public function __construct($driverMappingInstances = null) {
+  public function __construct($_parentObject = null, $driverMappingInstances = null) {
     // Récupération du type de l'objet
     $this->_objectType = str_replace('ORM\\API\\', '', get_called_class());
     // Récupération de la configuration du mapping
@@ -73,7 +78,7 @@ abstract class ObjectMapping {
     }
 
     // Appel l'initialisation de l'objet
-    $this->init();
+    $this->init($_parentObject);
   }
 
   /**
