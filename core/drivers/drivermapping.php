@@ -133,7 +133,7 @@ abstract class DriverMapping {
     if (!isset(self::$instances[$instance_id])) {
       $driver = $mapping['Driver'];
       $driverType = \ORM\Core\Config\Config::get("db.$driver.driver");
-      $class = "\\ORM\\Core\\DB\\".$driverType."\\".$driverType."Mapping";
+      $class = "\\ORM\\Core\\Drivers\\".$driverType."\\".$driverType."Mapping";
       self::$instances[$instance_id] = new $class($mapping, $instance_id);
     }
     // Retourne l'instance du driver mapping
@@ -262,7 +262,7 @@ abstract class DriverMapping {
    */
   protected function _getMapFieldName($name) {
   	if (!is_string($name)) {
-  	 return $name;  
+  	 return $name;
   	}
   	$mapName = $name;
     if (isset($this->_mapping['fields'])
@@ -656,6 +656,15 @@ abstract class DriverMapping {
     return $rKey;
   }
   /**
+   * Retourne si la clé est une valeur de clé primaire
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isPrimaryKey($key) {
+    $rKey = $this->_getReverseKey($key);
+    return isset($this->_mapping['primaryKeys'][$rKey]) && $this->_mapping['primaryKeys'][$rKey];
+  }
+  /**
    * Retourne si la clé est un Object Type
    * @param string $key
    * @return boolean
@@ -666,13 +675,13 @@ abstract class DriverMapping {
       && isset($this->_mapping['fields'][$key]['ObjectType']);
   }
   /**
-   * Retourne si la clé est un type Liste d'un Object Type
+   * Retourne si la clé est une liste
    * @param string $key
    * @return boolean
    */
   protected function _isObjectList($key) {
-    return isset($this->_mapping['fields'][$key]['type'])
-      && $this->_mapping['fields'][$key]['type'] == 'list';
+    return isset($this->_mapping['fields'][$key]['list'])
+      && $this->_mapping['fields'][$key]['list'];
   }
   /**
    * Retourne si la clé est une DateTime
@@ -686,6 +695,39 @@ abstract class DriverMapping {
       && $this->_mapping['fields'][$key]['type'] == 'datetime';
   }
   /**
+   * Retourne si la clé est une chaine de caractère
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isString($key) {
+    return isset($this->_mapping['fields'])
+      && isset($this->_mapping['fields'][$key])
+      && isset($this->_mapping['fields'][$key]['type'])
+      && $this->_mapping['fields'][$key]['type'] == 'string';
+  }
+  /**
+   * Retourne si la clé est un entier
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isInteger($key) {
+    return isset($this->_mapping['fields'])
+      && isset($this->_mapping['fields'][$key])
+      && isset($this->_mapping['fields'][$key]['type'])
+      && $this->_mapping['fields'][$key]['type'] == 'integer';
+  }
+  /**
+   * Retourne si la clé est un timestamp
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isTimestamp($key) {
+    return isset($this->_mapping['fields'])
+      && isset($this->_mapping['fields'][$key])
+      && isset($this->_mapping['fields'][$key]['type'])
+      && $this->_mapping['fields'][$key]['type'] == 'timestamp';
+  }
+  /**
    * Retourne si la clé est un tableau
    * @param string $key
    * @return boolean
@@ -693,7 +735,18 @@ abstract class DriverMapping {
   protected function _isArray($key) {
     return isset($this->_mapping['fields'])
       && isset($this->_mapping['fields'][$key])
-      && isset($this->_mapping['fields'][$key]['type'])
-      && $this->_mapping['fields'][$key]['type'] == 'array';
+      && isset($this->_mapping['fields'][$key]['array'])
+      && $this->_mapping['fields'][$key]['array'];
+  }
+  /**
+   * Retourne si la clé est une valeur JSON
+   * @param string $key
+   * @return boolean
+   */
+  protected function _isJson($key) {
+    return isset($this->_mapping['fields'])
+      && isset($this->_mapping['fields'][$key])
+      && isset($this->_mapping['fields'][$key]['json'])
+      && $this->_mapping['fields'][$key]['json'];
   }
 }
