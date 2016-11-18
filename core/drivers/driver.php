@@ -58,7 +58,7 @@ abstract class Driver {
         return false;
       }
       // Instancie le driver
-      $driver = "\\ORM\\Core\\DB\\".$config['driver']."\\".$config['driver'];
+      $driver = "\\ORM\\Core\\Drivers\\".$config['driver']."\\".$config['driver'];
       self::$instances[$server] = new $driver($config);
     }
     // Return l'instance du driver
