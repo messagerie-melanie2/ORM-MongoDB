@@ -39,7 +39,7 @@ class PDO extends \ORM\Core\Drivers\Driver {
    * Requête SQL DELETE
    * @var string
    */
-  const DELETE = "DELETE FROM {table_name}{where_clause};";
+  const DELETE = "DELETE FROM {table_name} {where_clause};";
   /**
    * Requête SQL SELECT
    * @var string
@@ -82,7 +82,6 @@ class PDO extends \ORM\Core\Drivers\Driver {
    * @return boolean true si ok, false sinon
    */
   public function disconnect() {
-    $this->_pdo->disconnect();
     return true;
   }
 
@@ -103,6 +102,8 @@ class PDO extends \ORM\Core\Drivers\Driver {
     $query = str_replace("{insert_values}", $insert["insertRequest"], $query);
 
     try {
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->create() query: " . $query);
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->create() params: " . var_export($insert["insertValues"], true));
       // Excution de la requête avec les paramètres
       $stmt = $this->_pdo->prepare($query);
       $ret = $stmt->execute($insert["insertValues"]);
@@ -139,6 +140,8 @@ class PDO extends \ORM\Core\Drivers\Driver {
     $query = str_replace("{offset}", $args->getOffset(), $query);
 
     try {
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->read() query: " . $query);
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->read() params: " . var_export($search['searchValues'], true));
       // Excution de la requête avec les paramètres
       $stmt = $this->_pdo->prepare($query);
       if ($stmt->execute($search['searchValues'])) {
@@ -175,6 +178,9 @@ class PDO extends \ORM\Core\Drivers\Driver {
     // Génération de la requête
     $query = self::UPDATE;
     $update = $args->getUpdateFields();
+    if (empty($update['updateFields'])) {
+      return false;
+    }
     $search = $args->getSearchFields();
     $where_clause = isset($search['searchFields']) ? (" WHERE ". $search['searchFields']) : "";
     $params = isset($search['searchValues']) ? array_merge($update['updateValues'], $search['searchValues']) : $update['updateValues'];
@@ -184,6 +190,8 @@ class PDO extends \ORM\Core\Drivers\Driver {
     $query = str_replace("{where_clause}", $where_clause, $query);
 
     try {
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->update() query: " . $query);
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->update() params: " . var_export($params, true));
       // Excution de la requête avec les paramètres
       $pdoStatment = $this->_pdo->prepare($query);
       $ret = $pdoStatment->execute($params);
@@ -217,6 +225,8 @@ class PDO extends \ORM\Core\Drivers\Driver {
     $query = str_replace("{where_clause}", $where_clause, $query);
 
     try {
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->delete() query: " . $query);
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->delete() params: " . var_export($params, true));
       // Excution de la requête avec les paramètres
       $pdoStatment = $this->_pdo->prepare($query);
       $ret = $pdoStatment->execute($params);
