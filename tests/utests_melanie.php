@@ -34,15 +34,29 @@ ORM\Core\Log\ORMLog::InitErrorLog(function($message) {
   echo "[ERROR] $message\r\n";
 });
 
+ORM\Core\Log\ORMLog::InitTraceLog(function($message) {
+  echo "[TRACE] $message\r\n";
+});
+
 $user = new PHP\User();
 $user->uid = 'thomas.test1';
 
 $result = $user->load();
 
-$calendar = new PHP\Calendar($user);
-$calendar->uid = $user->uid;
+if ($result) {
+  $result = $user->listCalendars();
+}
 
-$result = $calendar->load();
+foreach ($result as $res) {
+  echo $res->uid . ' / ' . $res->name;
+  echo "\r\n";
+}
+
+// $calendar = new PHP\Calendar($user);
+// $calendar->uid = uniqid();
+// $calendar->name = 'Un calendrier de test 2';
+
+// $result = $calendar->save();
 
 // $property = new PHP\Property();
 // $property->name = "property1";
@@ -58,7 +72,7 @@ $result = $calendar->load();
 
 // $calendar->properties = array($property, $property2);
 
-var_export($calendar->properties[0]);
+//var_export($calendar->properties[0]);
 
 // $calendar->save();
 
@@ -68,5 +82,5 @@ var_export($calendar->properties[0]);
 // $result = $user->save();
 
 echo "#####RESULT####\r\n";
-var_export($result);
+//var_export($result);
 echo "\r\n\r\n";
