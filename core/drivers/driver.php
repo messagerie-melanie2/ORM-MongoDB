@@ -115,4 +115,9 @@ abstract class Driver {
    * @param DriverMapping $args
    */
   abstract public function delete(DriverMapping $args);
+  /**
+   * Execution de la requête pré-définie
+   * @param DriverMapping $args
+   */
+  abstract public function execute(DriverMapping $args);
 }
