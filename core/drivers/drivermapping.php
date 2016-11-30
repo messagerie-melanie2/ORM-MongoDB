@@ -64,6 +64,11 @@ abstract class DriverMapping {
    */
   protected $_isList;
   /**
+   * Est-ce que le résultat doit être un booleen
+   * @var boolean
+   */
+  protected $_isBoolean;
+  /**
    * Est-ce que la requête demande un count
    * @var boolean
    */
@@ -118,6 +123,16 @@ abstract class DriverMapping {
    * @var array
    */
   protected $_fieldsForSearch;
+  /**
+   * Requête prédéfinie à exécuter
+   * @var string
+   */
+  protected $_query;
+  /**
+   * Liste des paramètres pour la requête prédéfinie
+   * @var array
+   */
+  protected $_paramsQuery;
 
   /**
    * Récupèration de l'instance liée à une collection et un mapping
@@ -147,6 +162,7 @@ abstract class DriverMapping {
    * @param $instance_id Identifiant de l'instance du driver mapping
    */
   public function __construct(&$mapping, $instance_id) {
+    \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_TRACE, "[DriverMapping]->__construct($instance_id)");
     $this->_mapping = $mapping;
     // Génération de l'identifiant de l'instance
     $this->_instance_id = $instance_id;
@@ -209,6 +225,11 @@ abstract class DriverMapping {
    * @return array
    */
   abstract function getOptions();
+  /**
+   * Récupération des champs et valeurs nécessaires à la requête
+   * @return array
+   */
+  abstract function getQueryFields();
   /**
    * Récupération de la valeur d'un champ converti au format de la base de données
    * @param string $key Clé du champ
@@ -359,6 +380,19 @@ abstract class DriverMapping {
     }
     else {
       return $this->_isList;
+    }
+  }
+  /**
+   * Getter/Setter pour savoir s'il s'agit d'un boolean
+   * @param boolean $isBoolean
+   * @return boolean
+   */
+  public function isBoolean($isBoolean = null) {
+    if (isset($isBoolean)) {
+      $this->_isBoolean = $isBoolean;
+    }
+    else {
+      return $this->_isBoolean;
     }
   }
   /**
@@ -527,6 +561,32 @@ abstract class DriverMapping {
       return $this->_fieldsForSearch;
     }
   }
+  /**
+   * Getter/Setter pour la requête prédéfinie
+   * @param string $query
+   * @return string
+   */
+  public function query($query = null) {
+    if (isset($query)) {
+      $this->_query = $query;
+    }
+    else {
+      return $this->_query;
+    }
+  }
+  /**
+   * Getter/Setter pour les paramètres de la requête prédéfinie
+   * @param array $paramsQuery
+   * @return array
+   */
+  public function paramsQuery($paramsQuery = null) {
+    if (isset($paramsQuery)) {
+      $this->_paramsQuery = $paramsQuery;
+    }
+    else {
+      return $this->_paramsQuery;
+    }
+  }
 
   /**
    * PHP magic to set an instance variable
@@ -596,6 +656,7 @@ abstract class DriverMapping {
    * @ignore
    */
   public function __call($name, $arguments) {
+    \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_TRACE, "[DriverMapping]->__call($name)");
     // Récupération du mapping de la méthode
     $methods_mapping = $arguments[0];
     // Appel la méthode
@@ -605,7 +666,16 @@ abstract class DriverMapping {
           && $methods_mapping['mapData']) {
         $data = array();
         foreach ($result as $res) {
-          $object = self::get_instance($this->mapping());
+          if (isset($methods_mapping['returnObject'])) {
+            foreach (\ORM\Core\Config\Config::get('mapping') as $map) {
+              if ($map['ObjectType'] == $methods_mapping['returnObject']) {
+                $object = self::get_instance($map);
+              }
+            }
+          }
+          else {
+            $object = self::get_instance($this->mapping());
+          }
           $object->setMappingFields($res);
           $data[] = $object;
         }
