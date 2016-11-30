@@ -240,4 +240,53 @@ class PDO extends \ORM\Core\Drivers\Driver {
 
     return $ret;
   }
+  /**
+   * Execution de la requête pré-définie
+   * @see \ORM\Core\Drivers\Driver::query()
+   * @param \ORM\Core\Drivers\DriverMapping $args
+   * @return mixed array of array dans le cas d'une liste, array dans le cas d'un résultat simple, integer dans le cas d'un count, boolean pour un insert/update/delete
+   */
+  public function execute(\ORM\Core\Drivers\DriverMapping $args) {
+    \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->execute()");
+    $ret = false;
+
+    // Génération de la requête
+    $query = $args->query();
+    $params = $args->getQueryFields();
+
+    try {
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->execute() query: " . $query);
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_DEBUG, "[Driver:PDO]->execute() params: " . var_export($params, true));
+
+      if ($args->isBoolean()) {
+        // Excution de la requête avec les paramètres
+        $pdoStatment = $this->_pdo->prepare($query);
+        $ret = $pdoStatment->execute($params);
+      }
+      else {
+        // Excution de la requête avec les paramètres
+        $stmt = $this->_pdo->prepare($query);
+        if ($stmt->execute($params)) {
+          if ($args->isList()) {
+            // Si c'est une liste on fetch tous les résultats
+            $ret = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+          }
+          else {
+            // Sinon on ne fetch que le premier resultat
+            $ret = $stmt->fetch(\PDO::FETCH_ASSOC);
+          }
+          $stmt->closeCursor();
+        }
+      }
+
+    }
+    catch (\PDOException $ex) {
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->execute() PDOException : " . $ex);
+    }
+    catch (\Exception $ex) {
+      \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_ERROR, "[Driver:PDO]->execute() Exception : " . $ex);
+    }
+
+    return $ret;
+  }
 }

@@ -527,6 +527,18 @@ class PDOMapping extends \ORM\Core\Drivers\DriverMapping {
   }
 
   /**
+   * Récupération des champs et valeurs nécessaires à la requête
+   * @return array
+   */
+  public function getQueryFields() {
+    $queryFields = array();
+    foreach ($this->paramsQuery() as $key => $value) {
+      $queryFields[$key] = $this->getField($value);
+    }
+    return $queryFields;
+  }
+
+  /**
    * Récupère l'instruction ORDER BY si besoin
    *
    * @return string
