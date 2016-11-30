@@ -48,12 +48,12 @@ use \ORM\Plugins\Messaging\ICS;
  * @property Attachment[] $attachments Liste de pièces jointes pour l'événement
  * @property Exception[] $exceptions Liste des exceptions pour l'événement
  *
- * @method bool load() load() Chargement l'évènement, en fonction du calendar et de l'uid
- * @method bool insert() insert() Enregistre un nouvel événement
- * @method bool update() update() Met à jour l'événement courant
- * @method bool save() save() Sauvegarde l'événement courant
- * @method bool exists() exists() Est-ce que l'événement courant existe dans la base de données ?
- * @method bool delete() delete() Supprime l'évènement et met à jour l'historique dans la base de données
+ * @method boolean load() Chargement l'évènement, en fonction du calendar et de l'uid
+ * @method boolean insert() Enregistre un nouvel événement
+ * @method boolean update() Met à jour l'événement courant
+ * @method boolean save() Sauvegarde l'événement courant
+ * @method boolean exists() Est-ce que l'événement courant existe dans la base de données ?
+ * @method boolean delete() Supprime l'évènement et met à jour l'historique dans la base de données
  * @method Event[] list() list(array listFields, array filter, array operators, array orderBy, boolean asc, int limit, int offset, array unsensitiveFields) Liste les éléments en fonction des paramètres
  */
 class Event extends \ORM\Core\Mapping\ObjectMapping {
