@@ -156,6 +156,26 @@ $config['mapping'] = array(
                                         ),
                                         'usePrimaryKeys' => false
                                 )
+                        ),
+                        'listCalendars' => array(
+                                'name' => 'execute',
+                                'query' => 'listUserCalendars',
+                                'paramsQuery' => array(
+                                        'user_uid' => 'uid',
+                                ),
+                                'return' => 'list',
+                                'mapData' => true,
+                                'returnObject' => 'PHP\\Calendar',
+                        ),
+                        'listSharedCalendars' => array(
+                                'name' => 'execute',
+                                'query' => 'listUserSharedCalendars',
+                                'paramsQuery' => array(
+                                        'user_uid' => 'uid',
+                                ),
+                                'return' => 'list',
+                                'mapData' => true,
+                                'returnObject' => 'PHP\\Calendar',
                         )
                 )
         ),

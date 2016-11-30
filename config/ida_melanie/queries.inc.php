@@ -19,7 +19,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-/* Chargement de la configuration pour l'application */
-include_once(__DIR__ . '/config.inc.php');
-include_once(__DIR__ . '/mapping.inc.php');
-include_once(__DIR__ . '/queries.inc.php');
+
+
+/**
+ * Queries
+ */
+$config['queries'] = array(
+        /**
+         * Lister les calendriers de l'utilisateur
+         */
+        'listUserCalendars' => 'SELECT *, \'30\' as share_value FROM calendars WHERE owner = :user_uid;',
+        /**
+         * Lister les calendriers auquel a accès l'utilisateur
+         */
+        'listUserSharedCalendars' => 'SELECT cal.uid as uid, cal.name as name, cal.owner as owner, cal.created as created, cal.ctag as ctag, cal.properties as properties FROM calendars cal INNER JOIN calendar_shares sha ON cal.uid = sha.calendar_id WHERE user_uid = :user_uid;',
+);
