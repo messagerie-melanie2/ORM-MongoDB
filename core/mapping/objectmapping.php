@@ -21,6 +21,8 @@
  */
 namespace ORM\Core\Mapping;
 
+use ORM\Core\Config\Config;
+
 /**
  * Gestion du mapping par objet
  * Tous les objets doivent l'implémenter
@@ -52,6 +54,7 @@ abstract class ObjectMapping {
    * Doit être appelé par tous les objets
    */
   public function __construct($_parentObject = null, $driverMappingInstances = null) {
+    \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_TRACE, "[ObjectMapping]->__construct()");
     // Récupération du type de l'objet
     $this->_objectType = str_replace('ORM\\API\\', '', get_called_class());
     // Récupération de la configuration du mapping
@@ -266,6 +269,7 @@ abstract class ObjectMapping {
    * @ignore
    */
   public function __call($name, $arguments) {
+    \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_TRACE, "[ObjectMapping]->__call($name)");
     $ret = null;
     foreach($this->_instances as $instance_id) {
       $mapping = $this->_driverMappingInstances[$instance_id]->mapping();
@@ -286,13 +290,33 @@ abstract class ObjectMapping {
             return $this->__call($name, $arguments);
           }
         }
-        // Sagit-il d'une liste ?
-        if (isset($methods_mapping['return'])
-            && $methods_mapping['return'] == 'list') {
-          $this->_driverMappingInstances[$instance_id]->isList(true);
+        \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_TRACE, "[ObjectMapping]->__call() methode name = $name");
+        // Est-ce qu'une requête est définie ?
+        if (isset($methods_mapping['query'])) {
+          $query = Config::get('queries.'.$methods_mapping['query']);
+          if (isset($query)) {
+            \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_TRACE, "[ObjectMapping]->__call() methode query = $query");
+            $this->_driverMappingInstances[$instance_id]->query($query);
+            if (isset($methods_mapping['paramsQuery'])) {
+              // Ajout des paramètres de la requête
+              $this->_driverMappingInstances[$instance_id]->paramsQuery($methods_mapping['paramsQuery']);
+            }
+          }
         }
-        else {
-          $this->_driverMappingInstances[$instance_id]->isList(false);
+        // Initialisation des retours
+        $this->_driverMappingInstances[$instance_id]->isList(false);
+        $this->_driverMappingInstances[$instance_id]->isBoolean(false);
+        if (isset($methods_mapping['return'])) {
+          switch ($methods_mapping['return']) {
+            case 'list':
+              // Sagit-il d'une liste ?
+              $this->_driverMappingInstances[$instance_id]->isList(true);
+              break;
+            case 'boolean':
+              // Sagit-il d'un booleen ?
+              $this->_driverMappingInstances[$instance_id]->isBoolean(true);
+              break;
+          }
         }
         // Mapping des data
         if (isset($methods_mapping['data'])) {
@@ -313,15 +337,22 @@ abstract class ObjectMapping {
         // Appel de la méthode
         $result = $this->_driverMappingInstances[$instance_id]->$name($methods_mapping);
 
+        \ORM\Core\Log\ORMLog::Log(\ORM\Core\Log\ORMLog::LEVEL_TRACE, "[ObjectMapping]->__call() result = " . var_export($result, true));
+
         // Combinaison des résultats
         if (!isset($methods_mapping['results'])
-            || !isset($methods_mapping['results']) != 'combined') {
+            || $methods_mapping['results'] != 'combined') {
           if (isset($methods_mapping['return'])
               && $methods_mapping['return'] == 'list') {
             $ret = array();
-            foreach ($result as $key => $value) {
+            if (isset($methods_mapping['returnObject'])) {
+              $class = 'ORM\\API\\'.$methods_mapping['returnObject'];
+            }
+            else {
               $class = get_called_class();
-              $object = new $class(array($value));
+            }
+            foreach ($result as $key => $value) {
+              $object = new $class(null, array($value));
               $ret[$key] = $object;
             }
           }
@@ -366,7 +397,7 @@ abstract class ObjectMapping {
                 foreach ($result as $key => $value) {
                   // Initialise les résultats
                   $class = get_called_class();
-                  $object = new $class(array($value));
+                  $object = new $class(null, array($value));
                   $ret[$key] = $object;
                 }
                 break;
