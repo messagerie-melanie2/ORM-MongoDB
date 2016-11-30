@@ -43,6 +43,11 @@ class Log {
 	 * @var Callback $infolog
 	 */
 	private $infolog;
+	/**
+	 * Function callback de trace
+	 * @var Callback $tracelog
+	 */
+	private $tracelog;
 
 	/**
 	 * Constructeur par défaut
@@ -51,6 +56,7 @@ class Log {
 		$this->debuglog = null;
 		$this->errorlog = null;
 		$this->infolog = null;
+		$this->tracelog = null;
 	}
 
 	/**
@@ -76,11 +82,21 @@ class Log {
 	/**
 	 * Intialisation de la methode de log info
 	 *
-	 * @param mixed $infolog function appelé pour logger le debug
+	 * @param mixed $infolog function appelé pour logger les info
 	 * doit prendre en paramètre le message
 	 */
 	public function setInfoLog($infolog) {
 		$this->infolog = $infolog;
+	}
+
+	/**
+	 * Intialisation de la methode de log trace
+	 *
+	 * @param mixed $tracelog function appelé pour logger les trace
+	 * doit prendre en paramètre le message
+	 */
+	public function setTraceLog($tracelog) {
+	  $this->tracelog = $tracelog;
 	}
 
 	/**
@@ -105,10 +121,16 @@ class Log {
 				break;
 			case ORMLog::LEVEL_INFO:
 				if (isset($this->infolog)) {
-					$info = $this->infolog;
-					$info($message);
+					$infolog = $this->infolog;
+					$infolog($message);
 				}
 				break;
+			case ORMLog::LEVEL_TRACE:
+			  if (isset($this->tracelog)) {
+			    $tracelog = $this->tracelog;
+			    $tracelog($message);
+			  }
+			  break;
 		}
 	}
 }

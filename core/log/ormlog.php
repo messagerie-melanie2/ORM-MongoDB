@@ -46,6 +46,7 @@ class ORMLog {
 	const LEVEL_ERROR = "error";
 	const LEVEL_DEBUG = "debug";
 	const LEVEL_INFO = "info";
+	const LEVEL_TRACE = "trace";
 
 	/**
 	 * Intialisation de la methode de log error
@@ -72,12 +73,23 @@ class ORMLog {
 	/**
 	 * Intialisation de la methode de log info
 	 *
-	 * @param mixed $infolog function appelé pour logger le debug
+	 * @param mixed $infolog function appelé pour logger les infos
 	 * doit prendre en paramètre le message
 	 */
 	public static function InitInfoLog($infolog) {
 		if (!isset(self::$log)) self::$log = new Log();
 		self::$log->setInfoLog($infolog);
+	}
+
+	/**
+	 * Intialisation de la methode de log trace
+	 *
+	 * @param mixed $tracelog function appelé pour logger les traces
+	 * doit prendre en paramètre le message
+	 */
+	public static function InitTraceLog($tracelog) {
+	  if (!isset(self::$log)) self::$log = new Log();
+	  self::$log->setTraceLog($tracelog);
 	}
 
 	/**
