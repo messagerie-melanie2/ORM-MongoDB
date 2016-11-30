@@ -27,6 +27,13 @@ namespace ORM\API\PHP;
  * @property string $uid UID de l'utilisateur
  * @property Datetime $created Date de création de l'utilisateur
  * @property Preferences $preferences Préférences de l'utilisateur
+ *
+ * @method boolean load() Chargement de l'utilisateur, en fonction de son uid
+ * @method boolean save() Sauvegarde l'utilisateur courant
+ * @method boolean exists() Est-ce que l'utilisateur courant existe dans la base de données ?
+ * @method boolean delete() Supprime l'utilisateur et met à jour l'historique dans la base de données
+ * @method Calendar[] listCalendars() Liste les calendriers de l'utilisateur courant
+ * @method Calendar[] listSharedCalendars() Liste les calendriers auquel l'utilisateur courant a accès
  */
 class User extends \ORM\Core\Mapping\ObjectMapping {
   /**
