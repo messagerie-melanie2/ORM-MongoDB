@@ -39,24 +39,34 @@ ORM\Core\Log\ORMLog::InitTraceLog(function($message) {
 });
 
 $user = new PHP\User();
-$user->uid = 'thomas.test1';
+$user->uid = 'thomas.test2';
+
+//$user->save();
 
 $result = $user->load();
 
 if ($result) {
-  $result = $user->listCalendars();
+  $result = $user->listSharedCalendars();
 }
 
 foreach ($result as $res) {
-  echo $res->uid . ' / ' . $res->name;
+  echo $res->uid . ' / ' . $res->name . '/' . $res->share_value;
   echo "\r\n";
 }
 
 // $calendar = new PHP\Calendar($user);
+// $calendar->uid = $user->uid;
 // $calendar->uid = uniqid();
-// $calendar->name = 'Un calendrier de test 2';
+// $calendar->name = 'TEST3 Thomas - Utilisateur de test';
 
 // $result = $calendar->save();
+// $result = $calendar->load();
+
+// $calendar_share = new PHP\CalendarShare($calendar);
+// $calendar_share->user_uid = 'thomas.test3';
+// $calendar_share->value = PHP\CalendarShare::READ + PHP\CalendarShare::SHOW;
+
+// $calendar_share->save();
 
 // $property = new PHP\Property();
 // $property->name = "property1";

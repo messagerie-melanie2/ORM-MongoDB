@@ -313,6 +313,99 @@ $config['mapping'] = array(
                         )
                 )
         ),
+        // Object calendar share
+        array(
+                'ObjectType' => 'PHP\\CalendarShare',
+                'Driver' => 'default',
+                'CollectionName' => 'calendar_shares',
+                'primaryKeys' => array(
+                        'calendar_id' => true,
+                        'user_uid' => true,
+                ),
+                'fields' => array(
+                        'calendar_id' => array(
+                                'name' => 'calendar_id',
+                                'type' => 'string',
+                                'size' => 255
+                        ),
+                        'user_uid' => array(
+                                'name' => 'user_uid',
+                                'type' => 'string',
+                                'size' => 255
+                        ),
+                        'value' => array(
+                                'name' => 'share_value',
+                                'type' => 'string',
+                                'size' => 255
+                        ),
+                        'properties' => array(
+                                'name' => 'properties',
+                                'ObjectType' => 'PHP\\Property',
+                                'json' => true,
+                                'list' => true
+                        )
+                ),
+                'methods' => array(
+                        'load' => array(
+                                'name' => 'read',
+                                'return' => 'boolean',
+                                'results' => 'combined',
+                                'operator' => 'and',
+                                'var' => true,
+                                'mapData' => true,
+                                'data' => array(
+                                        'usePrimaryKeys' => true
+                                )
+                        ),
+                        'exists' => array(
+                                'name' => 'read',
+                                'return' => 'boolean',
+                                'results' => 'combined',
+                                'operator' => 'and',
+                                'var' => true,
+                                'data' => array(
+                                        'usePrimaryKeys' => true
+                                )
+                        ),
+                        'insert' => array(
+                                'name' => 'create',
+                                'return' => 'boolean',
+                                'results' => 'combined',
+                                'operator' => 'and'
+                        ),
+                        'update' => array(
+                                'name' => 'update',
+                                'return' => 'boolean',
+                                'results' => 'combined',
+                                'operator' => 'and',
+                                'data' => array(
+
+                                        'usePrimaryKeys' => true
+                                )
+                        ),
+                        'save' => array(
+                                'method' => array(
+                                        'exists' => array(
+                                                false => 'insert',
+                                                true => 'update'
+                                        )
+                                ),
+                                'return' => 'boolean',
+                                'results' => 'combined',
+                                'data' => array(
+                                        'usePrimaryKeys' => true
+                                )
+                        ),
+                        'delete' => array(
+                                'name' => 'delete',
+                                'return' => 'boolean',
+                                'results' => 'combined',
+                                'data' => array(
+                                        'usePrimaryKeys' => true
+                                )
+                        )
+                )
+        ),
         // Object event
         array(
                 'ObjectType' => 'PHP\\Event',
