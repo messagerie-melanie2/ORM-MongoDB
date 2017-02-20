@@ -78,7 +78,7 @@ class PDO extends \ORM\Core\Drivers\Driver {
     return true;
   }
   /**
-   * Déconnexion de la base MongoDB
+   * Déconnexion de la base de données
    * @return boolean true si ok, false sinon
    */
   public function disconnect() {
